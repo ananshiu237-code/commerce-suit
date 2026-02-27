@@ -292,6 +292,27 @@ try {
     out(['ok' => true, 'data' => $st->fetchAll()]);
   }
 
+  if ($method === 'GET' && $p === '/api/reports/low-stock') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $storeId = (int)($_GET['store_id'] ?? 1);
+    $pdo = db();
+
+    $sql = "SELECT i.store_id, s.store_name, i.product_id, p.sku, p.name,
+                   i.qty_on_hand, i.safety_stock,
+                   (i.safety_stock - i.qty_on_hand) shortage
+            FROM store_inventory i
+            JOIN products p ON p.id = i.product_id
+            JOIN stores s ON s.id = i.store_id
+            WHERE i.company_id=:company_id
+              AND i.store_id=:store_id
+              AND p.is_active=1
+              AND i.qty_on_hand <= i.safety_stock
+            ORDER BY shortage DESC, p.id ASC";
+    $st = $pdo->prepare($sql);
+    $st->execute(['company_id' => $companyId, 'store_id' => $storeId]);
+    out(['ok' => true, 'data' => $st->fetchAll()]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

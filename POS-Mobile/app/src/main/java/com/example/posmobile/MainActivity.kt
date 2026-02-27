@@ -93,6 +93,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
         findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
         findViewById<Button>(R.id.storeRankingButton).setOnClickListener { fetchStoreRanking() }
+        findViewById<Button>(R.id.lowStockButton).setOnClickListener { fetchLowStock() }
 
         updateModeUI()
         renderCurrent()
@@ -468,6 +469,42 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：分店排行錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchLowStock() {
+        setStatus("狀態：查詢低庫存明細中...")
+        thread {
+            try {
+                val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
+                val url = "$apiBase/reports/low-stock?company_id=1&store_id=$storeId"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    runOnUiThread { setStatus("狀態：低庫存查詢失敗") }
+                    return@thread
+                }
+
+                val arr = JSONObject(body).getJSONArray("data")
+                val sb = StringBuilder()
+                sb.append("【低庫存明細】店別=$storeId\n")
+                if (arr.length() == 0) {
+                    sb.append("目前無低庫存商品\n")
+                } else {
+                    for (i in 0 until arr.length()) {
+                        val r = arr.getJSONObject(i)
+                        sb.append("商品ID ${r.getInt("product_id")} ${r.getString("name")}\n")
+                        sb.append("現有:${r.getString("qty_on_hand")} 安全:${r.getString("safety_stock")} 缺口:${r.getString("shortage")}\n\n")
+                    }
+                }
+
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    setStatus("狀態：低庫存查詢完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：低庫存錯誤 ${e.message}") }
             }
         }
     }

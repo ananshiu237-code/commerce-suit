@@ -1,0 +1,3 @@
+[2026-02-27] 建置完成：Ubuntu + Nginx + PHP-FPM + MySQL + Android POS-Mobile
+[2026-02-27] API endpoint: http://192.168.0.227/
+[2026-02-27] Android app install target: Samsung hlte (ADB over Wi-Fi)

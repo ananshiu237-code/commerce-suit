@@ -554,6 +554,28 @@ try {
     out(['ok' => true, 'data' => ['po_id' => $poId, 'status' => $newStatus]]);
   }
 
+  if ($method === 'GET' && $p === '/api/reports/po-status-summary') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $storeId = (int)($_GET['store_id'] ?? 0);
+    $from = $_GET['from'] ?? date('Y-m-01');
+    $to = $_GET['to'] ?? date('Y-m-d');
+
+    $pdo = db();
+    $sql = "SELECT po.status,
+                   COUNT(*) po_count,
+                   IFNULL(SUM(po.total_amount),0) total_amount
+            FROM purchase_orders po
+            WHERE po.company_id=:company_id
+              AND po.order_date BETWEEN :dfrom AND :dto";
+    $params = ['company_id' => $companyId, 'dfrom' => $from, 'dto' => $to];
+    if ($storeId > 0) { $sql .= " AND po.store_id=:store_id"; $params['store_id'] = $storeId; }
+    $sql .= " GROUP BY po.status ORDER BY po_count DESC";
+
+    $st = $pdo->prepare($sql);
+    $st->execute($params);
+    out(['ok' => true, 'data' => $st->fetchAll(), 'meta' => ['from' => $from, 'to' => $to, 'store_id' => $storeId]]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

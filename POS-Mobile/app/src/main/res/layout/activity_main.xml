@@ -336,6 +336,13 @@
                 android:layout_marginTop="8dp" />
 
             <Button
+                android:id="@+id/poStatusSummaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PO 狀態統計"
+                android:layout_marginTop="8dp" />
+
+            <Button
                 android:id="@+id/listPoButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

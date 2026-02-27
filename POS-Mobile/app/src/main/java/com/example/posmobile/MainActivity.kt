@@ -108,6 +108,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
         findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
         findViewById<Button>(R.id.createPoDraftButton).setOnClickListener { createPoDraft() }
+        findViewById<Button>(R.id.poStatusSummaryButton).setOnClickListener { fetchPoStatusSummary() }
         findViewById<Button>(R.id.listPoButton).setOnClickListener { listPurchaseOrders() }
         findViewById<Button>(R.id.poDetailButton).setOnClickListener { fetchPoDetail() }
         findViewById<Button>(R.id.poApproveButton).setOnClickListener { updatePoStatus("approved") }
@@ -286,6 +287,29 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：PO草稿錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchPoStatusSummary() {
+        setStatus("狀態：查詢PO狀態統計中...")
+        thread {
+            try {
+                val url = "$apiBase/reports/po-status-summary?company_id=1&store_id=${store()}&from=${from()}&to=${to()}"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：PO狀態統計查詢失敗") }
+                val root = JSONObject(body)
+                val arr = root.getJSONArray("data")
+                val meta = root.getJSONObject("meta")
+                val sb = StringBuilder("【PO 狀態統計】${meta.getString("from")} ~ ${meta.getString("to")}\n")
+                for (i in 0 until arr.length()) {
+                    val r = arr.getJSONObject(i)
+                    sb.append("${r.getString("status")}: 單數 ${r.getInt("po_count")}, 金額 ${r.getString("total_amount")}\n")
+                }
+                runOnUiThread { cartText.text = sb.toString(); setStatus("狀態：PO狀態統計完成") }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：PO狀態統計錯誤 ${e.message}") }
             }
         }
     }

@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var storeIdInput: EditText
     private lateinit var fromDateInput: EditText
     private lateinit var toDateInput: EditText
+    private lateinit var poIdInput: EditText
 
     private val scanLauncher = registerForActivityResult(ScanContract()) { result ->
         val code = result.contents
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity() {
         storeIdInput = findViewById(R.id.storeIdInput)
         fromDateInput = findViewById(R.id.fromDateInput)
         toDateInput = findViewById(R.id.toDateInput)
+        poIdInput = findViewById(R.id.poIdInput)
 
         findViewById<Button>(R.id.navSalesButton).setOnClickListener { showPage(Page.SALES) }
         findViewById<Button>(R.id.navInventoryButton).setOnClickListener { showPage(Page.INVENTORY) }
@@ -106,6 +108,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
         findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
         findViewById<Button>(R.id.createPoDraftButton).setOnClickListener { createPoDraft() }
+        findViewById<Button>(R.id.listPoButton).setOnClickListener { listPurchaseOrders() }
+        findViewById<Button>(R.id.poDetailButton).setOnClickListener { fetchPoDetail() }
+        findViewById<Button>(R.id.poApproveButton).setOnClickListener { updatePoStatus("approved") }
+        findViewById<Button>(R.id.poOrderButton).setOnClickListener { updatePoStatus("ordered") }
 
         showPage(Page.SALES)
         renderCurrent()
@@ -279,6 +285,74 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：PO草稿錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun listPurchaseOrders() {
+        setStatus("狀態：查詢PO列表中...")
+        thread {
+            try {
+                val url = "$apiBase/purchase-orders?company_id=1&store_id=${store()}&limit=20"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：PO列表查詢失敗") }
+                val arr = JSONObject(body).getJSONArray("data")
+                val sb = StringBuilder("【PO 列表】\n")
+                for (i in 0 until arr.length()) {
+                    val r = arr.getJSONObject(i)
+                    sb.append("ID:${r.getInt("id")} ${r.getString("po_no")} ${r.getString("status")} 金額:${r.getString("total_amount")}\n")
+                }
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    if (arr.length() > 0) poIdInput.setText(arr.getJSONObject(0).getInt("id").toString())
+                    setStatus("狀態：PO列表查詢完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：PO列表錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchPoDetail() {
+        val poId = poIdInput.text.toString().toIntOrNull() ?: return setStatus("狀態：請輸入PO ID")
+        setStatus("狀態：查詢PO明細中...")
+        thread {
+            try {
+                val url = "$apiBase/purchase-orders/$poId"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：PO明細查詢失敗") }
+                val data = JSONObject(body).getJSONObject("data")
+                val po = data.getJSONObject("po")
+                val items = data.getJSONArray("items")
+                val sb = StringBuilder("【PO 明細】${po.getString("po_no")} ${po.getString("status")}\n")
+                sb.append("總金額:${po.getString("total_amount")}\n")
+                for (i in 0 until items.length()) {
+                    val it = items.getJSONObject(i)
+                    sb.append("${it.getString("name")} qty:${it.getString("qty")} cost:${it.getString("unit_cost")}\n")
+                }
+                runOnUiThread { cartText.text = sb.toString(); setStatus("狀態：PO明細查詢完成") }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：PO明細錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun updatePoStatus(status: String) {
+        val poId = poIdInput.text.toString().toIntOrNull() ?: return setStatus("狀態：請輸入PO ID")
+        setStatus("狀態：更新PO狀態中...")
+        thread {
+            try {
+                val payload = JSONObject().put("status", status)
+                val req = Request.Builder().url("$apiBase/purchase-orders/$poId/status")
+                    .post(payload.toString().toRequestBody("application/json".toMediaType())).build()
+                val res = client.newCall(req).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：更新失敗 $body") }
+                runOnUiThread { setStatus("狀態：PO#$poId 已更新為 $status") }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：PO狀態更新錯誤 ${e.message}") }
             }
         }
     }

@@ -424,6 +424,63 @@ try {
     out(['ok' => true, 'data' => ['po_id' => $poId, 'po_no' => $poNo, 'item_count' => count($rows), 'total_amount' => $total]]);
   }
 
+  if ($method === 'GET' && $p === '/api/purchase-orders') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $storeId = (int)($_GET['store_id'] ?? 0);
+    $limit = min(100, max(1, (int)($_GET['limit'] ?? 20)));
+    $pdo = db();
+
+    $sql = "SELECT po.id, po.po_no, po.status, po.order_date, po.total_amount,
+                   po.store_id, s.store_name, po.supplier_id, sp.supplier_name, po.created_at
+            FROM purchase_orders po
+            LEFT JOIN stores s ON s.id = po.store_id
+            LEFT JOIN suppliers sp ON sp.id = po.supplier_id
+            WHERE po.company_id=:company_id";
+    $params = ['company_id' => $companyId];
+    if ($storeId > 0) { $sql .= " AND po.store_id=:store_id"; $params['store_id'] = $storeId; }
+    $sql .= " ORDER BY po.id DESC LIMIT $limit";
+    $st = $pdo->prepare($sql);
+    $st->execute($params);
+    out(['ok' => true, 'data' => $st->fetchAll()]);
+  }
+
+  if ($method === 'GET' && preg_match('#^/api/purchase-orders/(\d+)$#', $p, $m)) {
+    $poId = (int)$m[1];
+    $pdo = db();
+
+    $stPo = $pdo->prepare("SELECT po.*, s.store_name, sp.supplier_name
+                           FROM purchase_orders po
+                           LEFT JOIN stores s ON s.id = po.store_id
+                           LEFT JOIN suppliers sp ON sp.id = po.supplier_id
+                           WHERE po.id=:id LIMIT 1");
+    $stPo->execute(['id' => $poId]);
+    $po = $stPo->fetch();
+    if (!$po) out(['ok' => false, 'error' => 'PO_NOT_FOUND'], 404);
+
+    $stItems = $pdo->prepare("SELECT i.*, p.sku, p.name
+                              FROM purchase_order_items i
+                              JOIN products p ON p.id = i.product_id
+                              WHERE i.purchase_order_id=:id
+                              ORDER BY i.id ASC");
+    $stItems->execute(['id' => $poId]);
+    out(['ok' => true, 'data' => ['po' => $po, 'items' => $stItems->fetchAll()]]);
+  }
+
+  if ($method === 'POST' && preg_match('#^/api/purchase-orders/(\d+)/status$#', $p, $m)) {
+    $poId = (int)$m[1];
+    $b = body();
+    $newStatus = strtolower(trim((string)($b['status'] ?? '')));
+    $allowed = ['draft', 'approved', 'ordered'];
+    if (!in_array($newStatus, $allowed, true)) out(['ok' => false, 'error' => 'INVALID_STATUS'], 422);
+
+    $pdo = db();
+    $st = $pdo->prepare("UPDATE purchase_orders SET status=:status WHERE id=:id");
+    $st->execute(['status' => $newStatus, 'id' => $poId]);
+    if ($st->rowCount() === 0) out(['ok' => false, 'error' => 'PO_NOT_FOUND_OR_UNCHANGED'], 404);
+
+    out(['ok' => true, 'data' => ['po_id' => $poId, 'status' => $newStatus]]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

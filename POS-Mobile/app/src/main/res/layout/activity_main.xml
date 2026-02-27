@@ -281,6 +281,33 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/poIdInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="PO ID"
+                    android:inputType="number" />
+
+                <Button
+                    android:id="@+id/poApproveButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="核准" />
+
+                <Button
+                    android:id="@+id/poOrderButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="下單" />
+            </LinearLayout>
+
             <Button
                 android:id="@+id/syncStatusButton"
                 android:layout_width="match_parent"
@@ -300,6 +327,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="一鍵產生採購單草稿"
+                android:layout_marginTop="8dp" />
+
+            <Button
+                android:id="@+id/listPoButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PO 草稿列表"
+                android:layout_marginTop="8dp" />
+
+            <Button
+                android:id="@+id/poDetailButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="查詢 PO 明細（用 PO ID）"
                 android:layout_marginTop="8dp" />
         </LinearLayout>
 

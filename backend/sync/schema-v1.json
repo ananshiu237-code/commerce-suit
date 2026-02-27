@@ -1,0 +1,44 @@
+{
+  "title": "Branch Sync Upload Schema v1",
+  "type": "object",
+  "required": ["company_id", "source_store_id", "sync_type", "idempotency_key", "payload"],
+  "properties": {
+    "company_id": {"type": "integer"},
+    "source_store_id": {"type": "integer"},
+    "sync_type": {"type": "string", "enum": ["order_batch", "inventory_batch", "mixed_batch"]},
+    "idempotency_key": {"type": "string"},
+    "payload": {
+      "type": "object",
+      "properties": {
+        "sent_at": {"type": "string"},
+        "orders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["order_no", "business_date", "total_amount"],
+            "properties": {
+              "order_no": {"type": "string"},
+              "business_date": {"type": "string"},
+              "total_amount": {"type": "number"},
+              "paid_amount": {"type": "number"},
+              "status": {"type": "string"}
+            }
+          }
+        },
+        "inventory_txns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["product_id", "txn_type", "qty_change"],
+            "properties": {
+              "product_id": {"type": "integer"},
+              "txn_type": {"type": "string"},
+              "qty_change": {"type": "number"},
+              "created_at": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  }
+}

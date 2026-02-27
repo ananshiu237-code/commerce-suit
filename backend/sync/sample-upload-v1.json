@@ -1,0 +1,26 @@
+{
+  "company_id": 1,
+  "source_store_id": 1,
+  "sync_type": "mixed_batch",
+  "idempotency_key": "store1-20260227-2339-001",
+  "payload": {
+    "sent_at": "2026-02-27T23:39:00+08:00",
+    "orders": [
+      {
+        "order_no": "SO20260227233657499",
+        "business_date": "2026-02-27",
+        "total_amount": 70,
+        "paid_amount": 70,
+        "status": "paid"
+      }
+    ],
+    "inventory_txns": [
+      {
+        "product_id": 3,
+        "txn_type": "stocktake",
+        "qty_change": 204,
+        "created_at": "2026-02-27T23:37:42+08:00"
+      }
+    ]
+  }
+}

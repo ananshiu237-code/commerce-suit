@@ -60,6 +60,91 @@ try {
     out(['ok' => true, 'data' => $row]);
   }
 
+
+  if ($method === 'POST' && $p === '/api/inventory/check') {
+    $b = body();
+    $companyId = (int)($b['company_id'] ?? 1);
+    $storeId = (int)($b['store_id'] ?? 1);
+    $checkedBy = (int)($b['checked_by'] ?? 1);
+    $items = $b['items'] ?? [];
+
+    if (!is_array($items) || count($items) === 0) {
+      out(['ok' => false, 'error' => 'ITEMS_REQUIRED'], 422);
+    }
+
+    $pdo = db();
+    $pdo->beginTransaction();
+
+    $checkNo = 'CHK' . date('YmdHis') . rand(100, 999);
+    $insCheck = $pdo->prepare("INSERT INTO inventory_checks
+      (company_id, store_id, check_no, status, checked_by, checked_at)
+      VALUES (:company_id,:store_id,:check_no,'done',:checked_by,NOW())");
+    $insCheck->execute([
+      'company_id' => $companyId,
+      'store_id' => $storeId,
+      'check_no' => $checkNo,
+      'checked_by' => $checkedBy,
+    ]);
+    $checkId = (int)$pdo->lastInsertId();
+
+    $getInv = $pdo->prepare("SELECT qty_on_hand FROM store_inventory WHERE store_id=:store_id AND product_id=:product_id LIMIT 1");
+    $insCheckItem = $pdo->prepare("INSERT INTO inventory_check_items
+      (check_id, product_id, system_qty, counted_qty, diff_qty)
+      VALUES (:check_id,:product_id,:system_qty,:counted_qty,:diff_qty)");
+    $upInv = $pdo->prepare("UPDATE store_inventory SET qty_on_hand=:qty_on_hand WHERE store_id=:store_id AND product_id=:product_id");
+    $insInvTxn = $pdo->prepare("INSERT INTO inventory_txns
+      (company_id, store_id, product_id, txn_type, ref_type, ref_id, qty_change, qty_after, reason, created_by)
+      VALUES (:company_id,:store_id,:product_id,'stocktake','inventory_check',:ref_id,:qty_change,:qty_after,'Inventory check adjust',:created_by)");
+
+    foreach ($items as $it) {
+      $pid = (int)($it['product_id'] ?? 0);
+      $counted = (float)($it['counted_qty'] ?? 0);
+      if ($pid <= 0 || $counted < 0) throw new Exception('INVALID_ITEM');
+
+      $getInv->execute(['store_id' => $storeId, 'product_id' => $pid]);
+      $row = $getInv->fetch();
+      if (!$row) throw new Exception('INVENTORY_NOT_FOUND:' . $pid);
+
+      $system = (float)$row['qty_on_hand'];
+      $diff = $counted - $system;
+
+      $insCheckItem->execute([
+        'check_id' => $checkId,
+        'product_id' => $pid,
+        'system_qty' => $system,
+        'counted_qty' => $counted,
+        'diff_qty' => $diff,
+      ]);
+
+      $upInv->execute(['qty_on_hand' => $counted, 'store_id' => $storeId, 'product_id' => $pid]);
+
+      if (abs($diff) > 0.0001) {
+        $insInvTxn->execute([
+          'company_id' => $companyId,
+          'store_id' => $storeId,
+          'product_id' => $pid,
+          'ref_id' => $checkId,
+          'qty_change' => $diff,
+          'qty_after' => $counted,
+          'created_by' => $checkedBy,
+        ]);
+      }
+    }
+
+    $audit = $pdo->prepare("INSERT INTO audit_logs (company_id, store_id, actor_type, actor_id, action, entity_type, entity_id, detail_json)
+      VALUES (:company_id,:store_id,'user',:actor_id,'inventory_check','inventory_checks',:entity_id,:detail_json)");
+    $audit->execute([
+      'company_id' => $companyId,
+      'store_id' => $storeId,
+      'actor_id' => $checkedBy,
+      'entity_id' => $checkId,
+      'detail_json' => json_encode(['check_no' => $checkNo, 'item_count' => count($items)], JSON_UNESCAPED_UNICODE),
+    ]);
+
+    $pdo->commit();
+    out(['ok' => true, 'data' => ['check_id' => $checkId, 'check_no' => $checkNo]]);
+  }
+
   if ($method === 'POST' && $p === '/api/orders') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

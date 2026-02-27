@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.salesRemoveButton).setOnClickListener { removeSalesItem() }
         findViewById<Button>(R.id.inventoryApplyEditButton).setOnClickListener { applyInventoryEdit() }
         findViewById<Button>(R.id.reportButton).setOnClickListener { fetchReports() }
+        findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
 
         updateModeUI()
         renderCurrent()
@@ -353,6 +354,47 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：報表錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchSyncStatus() {
+        setStatus("狀態：查詢總店同步監控中...")
+        thread {
+            try {
+                val url = "$apiBase/sync/status?company_id=1"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    runOnUiThread { setStatus("狀態：同步監控查詢失敗") }
+                    return@thread
+                }
+
+                val data = JSONObject(body).getJSONObject("data")
+                val summary = data.getJSONArray("summary")
+                val byStore = data.getJSONArray("by_store")
+
+                val sb = StringBuilder()
+                sb.append("【同步狀態統計】\n")
+                for (i in 0 until summary.length()) {
+                    val r = summary.getJSONObject(i)
+                    sb.append("${r.getString("sync_status")}: ${r.getInt("cnt")}\n")
+                }
+                sb.append("\n【分店同步狀況】\n")
+                for (i in 0 until byStore.length()) {
+                    val r = byStore.getJSONObject(i)
+                    sb.append("店ID ${r.getInt("source_store_id")} ${r.optString("store_name", "")}")
+                        .append("\n上傳次數:${r.getInt("upload_count")}")
+                        .append(" 最後上傳:${r.optString("last_upload_at", "-")}")
+                        .append("\n最後同步:${r.optString("last_synced_at", "-")}\n\n")
+                }
+
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    setStatus("狀態：同步監控查詢完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：同步監控錯誤 ${e.message}") }
             }
         }
     }

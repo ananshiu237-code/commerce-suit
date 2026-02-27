@@ -198,6 +198,13 @@
             android:text="查詢營業報表（依條件）"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/syncStatusButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="查詢總店同步監控"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/cartTitle"
             android:layout_width="match_parent"

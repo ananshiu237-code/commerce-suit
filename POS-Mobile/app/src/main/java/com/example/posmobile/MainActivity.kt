@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.reportButton).setOnClickListener { fetchReports() }
         findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
         findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
+        findViewById<Button>(R.id.storeRankingButton).setOnClickListener { fetchStoreRanking() }
 
         updateModeUI()
         renderCurrent()
@@ -434,6 +435,39 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：總店總覽錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchStoreRanking() {
+        setStatus("狀態：查詢分店營收排行中...")
+        thread {
+            try {
+                val from = fromDateInput.text.toString().trim().ifBlank { "2026-02-27" }
+                val to = toDateInput.text.toString().trim().ifBlank { "2026-02-27" }
+                val url = "$apiBase/reports/store-ranking?company_id=1&from=$from&to=$to"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    runOnUiThread { setStatus("狀態：分店排行查詢失敗") }
+                    return@thread
+                }
+
+                val arr = JSONObject(body).getJSONArray("data")
+                val sb = StringBuilder()
+                sb.append("【分店營收排行】$from ~ $to\n")
+                for (i in 0 until arr.length()) {
+                    val r = arr.getJSONObject(i)
+                    sb.append("#${i + 1} 店ID ${r.getInt("store_id")} ${r.getString("store_name")}\n")
+                    sb.append("單數:${r.getInt("order_count")} 營收:${r.getString("total_sales")} 客單:${r.getString("avg_ticket")}\n\n")
+                }
+
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    setStatus("狀態：分店排行查詢完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：分店排行錯誤 ${e.message}") }
             }
         }
     }

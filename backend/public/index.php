@@ -270,6 +270,28 @@ try {
     ]]);
   }
 
+  if ($method === 'GET' && $p === '/api/reports/store-ranking') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $from = $_GET['from'] ?? date('Y-m-d');
+    $to = $_GET['to'] ?? date('Y-m-d');
+    $pdo = db();
+
+    $sql = "SELECT o.store_id, s.store_name,
+                   COUNT(*) order_count,
+                   IFNULL(SUM(o.total_amount),0) total_sales,
+                   IFNULL(AVG(o.total_amount),0) avg_ticket
+            FROM orders o
+            JOIN stores s ON s.id = o.store_id
+            WHERE o.company_id=:company_id
+              AND o.business_date BETWEEN :dfrom AND :dto
+              AND o.status='paid'
+            GROUP BY o.store_id, s.store_name
+            ORDER BY total_sales DESC";
+    $st = $pdo->prepare($sql);
+    $st->execute(['company_id' => $companyId, 'dfrom' => $from, 'dto' => $to]);
+    out(['ok' => true, 'data' => $st->fetchAll()]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

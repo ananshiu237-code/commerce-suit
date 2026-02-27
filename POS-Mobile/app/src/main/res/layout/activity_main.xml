@@ -13,7 +13,7 @@
             android:id="@+id/titleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="POS-Mobile 掃碼銷售 / 盤點 / 報表"
+            android:text="POS-Mobile"
             android:textStyle="bold"
             android:textSize="22sp"
             android:layout_marginBottom="8dp" />
@@ -26,11 +26,39 @@
             android:textSize="14sp"
             android:layout_marginBottom="12dp" />
 
-        <Button
-            android:id="@+id/modeButton"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="切換模式：目前 銷售" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/navSalesButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="銷售" />
+
+            <Button
+                android:id="@+id/navInventoryButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="盤點" />
+
+            <Button
+                android:id="@+id/navReportsButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="報表" />
+
+            <Button
+                android:id="@+id/navHqButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="總店" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/scanButton"
@@ -39,206 +67,241 @@
             android:text="掃描商品二維碼"
             android:layout_marginTop="8dp" />
 
-        <TextView
-            android:id="@+id/inventoryQtyLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="盤點實盤數"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp" />
-
         <LinearLayout
-            android:id="@+id/inventoryControls"
+            android:id="@+id/salesSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/inventoryQtyInput"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/salesEditControls"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="盤點實盤數"
-                android:inputType="number"
-                android:text="1" />
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/salesEditProductIdInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="銷售商品ID"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/salesEditQtyInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="新數量"
+                    android:inputType="number" />
+
+                <Button
+                    android:id="@+id/salesApplyEditButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="套用" />
+
+                <Button
+                    android:id="@+id/salesRemoveButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="刪品" />
+            </LinearLayout>
 
             <Button
-                android:id="@+id/removeLastButton"
-                android:layout_width="wrap_content"
+                android:id="@+id/checkoutButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="刪最後" />
+                android:text="送出訂單"
+                android:layout_marginTop="8dp" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/salesEditControls"
+            android:id="@+id/inventorySection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/salesEditProductIdInput"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/inventoryQtyLabel"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="銷售商品ID"
-                android:inputType="number" />
+                android:text="盤點實盤數"
+                android:textStyle="bold"
+                android:layout_marginTop="8dp" />
 
-            <EditText
-                android:id="@+id/salesEditQtyInput"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/inventoryControls"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="新數量"
-                android:inputType="number" />
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <EditText
+                    android:id="@+id/inventoryQtyInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="盤點實盤數"
+                    android:inputType="number"
+                    android:text="1" />
+
+                <Button
+                    android:id="@+id/removeLastButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="刪最後" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/inventoryEditControls"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/inventoryEditProductIdInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="商品ID"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/inventoryEditQtyInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="新實盤數"
+                    android:inputType="number" />
+
+                <Button
+                    android:id="@+id/inventoryApplyEditButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="套用" />
+            </LinearLayout>
 
             <Button
-                android:id="@+id/salesApplyEditButton"
-                android:layout_width="wrap_content"
+                android:id="@+id/inventoryButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="套用" />
-
-            <Button
-                android:id="@+id/salesRemoveButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="刪品" />
+                android:text="送出盤點"
+                android:layout_marginTop="8dp" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/inventoryEditControls"
+            android:id="@+id/filterSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/inventoryEditProductIdInput"
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="商品ID"
-                android:inputType="number" />
+                android:text="查詢條件"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp" />
 
-            <EditText
-                android:id="@+id/inventoryEditQtyInput"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="新實盤數"
-                android:inputType="number" />
+                android:orientation="horizontal"
+                android:layout_marginTop="6dp">
 
-            <Button
-                android:id="@+id/inventoryApplyEditButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="套用" />
+                <EditText
+                    android:id="@+id/storeIdInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="店別ID"
+                    android:text="1"
+                    android:inputType="number" />
+
+                <EditText
+                    android:id="@+id/fromDateInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:hint="起日 YYYY-MM-DD"
+                    android:inputType="text"
+                    android:text="2026-02-27" />
+
+                <EditText
+                    android:id="@+id/toDateInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:hint="訖日 YYYY-MM-DD"
+                    android:inputType="text"
+                    android:text="2026-02-27" />
+            </LinearLayout>
         </LinearLayout>
-
-        <Button
-            android:id="@+id/checkoutButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="送出訂單（銷售模式）"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/inventoryButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="送出盤點（盤點模式）"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="報表條件"
-            android:textStyle="bold"
-            android:layout_marginTop="12dp" />
 
         <LinearLayout
+            android:id="@+id/reportsSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="6dp">
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/storeIdInput"
-                android:layout_width="0dp"
+            <Button
+                android:id="@+id/reportButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="店別ID"
-                android:text="1"
-                android:inputType="number" />
+                android:text="營業報表"
+                android:layout_marginTop="8dp" />
 
-            <EditText
-                android:id="@+id/fromDateInput"
-                android:layout_width="0dp"
+            <Button
+                android:id="@+id/storeRankingButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:hint="起日 YYYY-MM-DD"
-                android:inputType="text"
-                android:text="2026-02-27" />
+                android:text="分店營收排行"
+                android:layout_marginTop="8dp" />
 
-            <EditText
-                android:id="@+id/toDateInput"
-                android:layout_width="0dp"
+            <Button
+                android:id="@+id/lowStockButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:hint="訖日 YYYY-MM-DD"
-                android:inputType="text"
-                android:text="2026-02-27" />
+                android:text="低庫存明細"
+                android:layout_marginTop="8dp" />
+
+            <Button
+                android:id="@+id/replenishButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="補貨建議"
+                android:layout_marginTop="8dp" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/reportButton"
+        <LinearLayout
+            android:id="@+id/hqSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="查詢營業報表（依條件）"
-            android:layout_marginTop="8dp" />
+            android:orientation="vertical">
 
-        <Button
-            android:id="@+id/syncStatusButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查詢總店同步監控"
-            android:layout_marginTop="8dp" />
+            <Button
+                android:id="@+id/syncStatusButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="總店同步監控"
+                android:layout_marginTop="8dp" />
 
-        <Button
-            android:id="@+id/hqSummaryButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查詢總店營運總覽"
-            android:layout_marginTop="8dp" />
+            <Button
+                android:id="@+id/hqSummaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="總店營運總覽"
+                android:layout_marginTop="8dp" />
 
-        <Button
-            android:id="@+id/storeRankingButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查詢分店營收排行"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/lowStockButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查詢低庫存明細"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/replenishButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="查詢補貨建議"
-            android:layout_marginTop="8dp" />
-
-        <Button
-            android:id="@+id/createPoDraftButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="一鍵產生採購單草稿"
-            android:layout_marginTop="8dp" />
+            <Button
+                android:id="@+id/createPoDraftButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="一鍵產生採購單草稿"
+                android:layout_marginTop="8dp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/cartTitle"

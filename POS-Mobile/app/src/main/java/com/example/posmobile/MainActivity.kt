@@ -22,7 +22,10 @@ class MainActivity : AppCompatActivity() {
     private val apiBase = "http://192.168.0.227/api"
 
     enum class Mode { SALES, INVENTORY }
+    enum class Page { SALES, INVENTORY, REPORTS, HQ }
+
     private var mode = Mode.SALES
+    private var page = Page.SALES
 
     data class Item(val productId: Int, val name: String, val price: Double, var qty: Int)
 
@@ -32,19 +35,19 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var statusText: TextView
     private lateinit var cartText: TextView
-    private lateinit var modeButton: Button
-    private lateinit var checkoutButton: Button
-    private lateinit var inventoryButton: Button
-    private lateinit var inventoryControls: LinearLayout
-    private lateinit var salesEditControls: LinearLayout
-    private lateinit var inventoryEditControls: LinearLayout
+    private lateinit var scanButton: Button
+
+    private lateinit var salesSection: LinearLayout
+    private lateinit var inventorySection: LinearLayout
+    private lateinit var reportsSection: LinearLayout
+    private lateinit var hqSection: LinearLayout
+    private lateinit var filterSection: LinearLayout
 
     private lateinit var inventoryQtyInput: EditText
     private lateinit var salesEditProductIdInput: EditText
     private lateinit var salesEditQtyInput: EditText
     private lateinit var inventoryEditProductIdInput: EditText
     private lateinit var inventoryEditQtyInput: EditText
-
     private lateinit var storeIdInput: EditText
     private lateinit var fromDateInput: EditText
     private lateinit var toDateInput: EditText
@@ -64,12 +67,13 @@ class MainActivity : AppCompatActivity() {
 
         statusText = findViewById(R.id.statusText)
         cartText = findViewById(R.id.cartText)
-        modeButton = findViewById(R.id.modeButton)
-        checkoutButton = findViewById(R.id.checkoutButton)
-        inventoryButton = findViewById(R.id.inventoryButton)
-        inventoryControls = findViewById(R.id.inventoryControls)
-        salesEditControls = findViewById(R.id.salesEditControls)
-        inventoryEditControls = findViewById(R.id.inventoryEditControls)
+        scanButton = findViewById(R.id.scanButton)
+
+        salesSection = findViewById(R.id.salesSection)
+        inventorySection = findViewById(R.id.inventorySection)
+        reportsSection = findViewById(R.id.reportsSection)
+        hqSection = findViewById(R.id.hqSection)
+        filterSection = findViewById(R.id.filterSection)
 
         inventoryQtyInput = findViewById(R.id.inventoryQtyInput)
         salesEditProductIdInput = findViewById(R.id.salesEditProductIdInput)
@@ -81,41 +85,49 @@ class MainActivity : AppCompatActivity() {
         fromDateInput = findViewById(R.id.fromDateInput)
         toDateInput = findViewById(R.id.toDateInput)
 
-        findViewById<Button>(R.id.modeButton).setOnClickListener { toggleMode() }
-        findViewById<Button>(R.id.scanButton).setOnClickListener { startScan() }
+        findViewById<Button>(R.id.navSalesButton).setOnClickListener { showPage(Page.SALES) }
+        findViewById<Button>(R.id.navInventoryButton).setOnClickListener { showPage(Page.INVENTORY) }
+        findViewById<Button>(R.id.navReportsButton).setOnClickListener { showPage(Page.REPORTS) }
+        findViewById<Button>(R.id.navHqButton).setOnClickListener { showPage(Page.HQ) }
+
+        scanButton.setOnClickListener { startScan() }
         findViewById<Button>(R.id.checkoutButton).setOnClickListener { checkout() }
         findViewById<Button>(R.id.inventoryButton).setOnClickListener { submitInventoryCheck() }
         findViewById<Button>(R.id.removeLastButton).setOnClickListener { removeLastInventoryItem() }
         findViewById<Button>(R.id.salesApplyEditButton).setOnClickListener { applySalesEdit() }
         findViewById<Button>(R.id.salesRemoveButton).setOnClickListener { removeSalesItem() }
         findViewById<Button>(R.id.inventoryApplyEditButton).setOnClickListener { applyInventoryEdit() }
+
         findViewById<Button>(R.id.reportButton).setOnClickListener { fetchReports() }
-        findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
-        findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
         findViewById<Button>(R.id.storeRankingButton).setOnClickListener { fetchStoreRanking() }
         findViewById<Button>(R.id.lowStockButton).setOnClickListener { fetchLowStock() }
         findViewById<Button>(R.id.replenishButton).setOnClickListener { fetchReplenishmentSuggestions() }
+
+        findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
+        findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
         findViewById<Button>(R.id.createPoDraftButton).setOnClickListener { createPoDraft() }
 
-        updateModeUI()
+        showPage(Page.SALES)
         renderCurrent()
     }
 
-    private fun toggleMode() {
-        mode = if (mode == Mode.SALES) Mode.INVENTORY else Mode.SALES
-        setStatus("狀態：切換為 ${if (mode == Mode.SALES) "銷售" else "盤點"} 模式")
-        updateModeUI()
-        renderCurrent()
-    }
+    private fun showPage(p: Page) {
+        page = p
+        salesSection.visibility = if (p == Page.SALES) View.VISIBLE else View.GONE
+        inventorySection.visibility = if (p == Page.INVENTORY) View.VISIBLE else View.GONE
+        reportsSection.visibility = if (p == Page.REPORTS) View.VISIBLE else View.GONE
+        hqSection.visibility = if (p == Page.HQ) View.VISIBLE else View.GONE
+        filterSection.visibility = if (p == Page.REPORTS || p == Page.HQ) View.VISIBLE else View.GONE
+        scanButton.visibility = if (p == Page.SALES || p == Page.INVENTORY) View.VISIBLE else View.GONE
 
-    private fun updateModeUI() {
-        val isSales = mode == Mode.SALES
-        modeButton.text = "切換模式：目前 ${if (isSales) "銷售" else "盤點"}"
-        checkoutButton.visibility = if (isSales) View.VISIBLE else View.GONE
-        inventoryButton.visibility = if (isSales) View.GONE else View.VISIBLE
-        salesEditControls.visibility = if (isSales) View.VISIBLE else View.GONE
-        inventoryControls.visibility = if (isSales) View.GONE else View.VISIBLE
-        inventoryEditControls.visibility = if (isSales) View.GONE else View.VISIBLE
+        mode = if (p == Page.INVENTORY) Mode.INVENTORY else Mode.SALES
+        setStatus("狀態：切換到${when (p) {
+            Page.SALES -> "銷售頁"
+            Page.INVENTORY -> "盤點頁"
+            Page.REPORTS -> "報表頁"
+            Page.HQ -> "總店頁"
+        }}")
+        renderCurrent()
     }
 
     private fun startScan() {
@@ -139,7 +151,6 @@ class MainActivity : AppCompatActivity() {
                     runOnUiThread { setStatus("狀態：查無商品") }
                     return@thread
                 }
-
                 val d = JSONObject(body).getJSONObject("data")
                 val id = d.getInt("id")
                 val name = d.getString("name")
@@ -165,10 +176,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkout() {
-        if (cart.isEmpty()) {
-            setStatus("狀態：購物車為空")
-            return
-        }
+        if (cart.isEmpty()) return setStatus("狀態：購物車為空")
         thread {
             try {
                 val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
@@ -178,27 +186,16 @@ class MainActivity : AppCompatActivity() {
                     arr.put(JSONObject().put("product_id", it.productId).put("qty", it.qty))
                     total += it.price * it.qty
                 }
-                val payload = JSONObject()
-                    .put("company_id", 1)
-                    .put("store_id", storeId)
-                    .put("cashier_user_id", 1)
-                    .put("items", arr)
-                    .put("payment", JSONObject().put("method_code", "CASH").put("amount", total))
-
+                val payload = JSONObject().put("company_id", 1).put("store_id", storeId).put("cashier_user_id", 1)
+                    .put("items", arr).put("payment", JSONObject().put("method_code", "CASH").put("amount", total))
                 val req = Request.Builder().url("$apiBase/orders")
                     .post(payload.toString().toRequestBody("application/json".toMediaType())).build()
                 val res = client.newCall(req).execute()
                 val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：送單失敗 $body") }
-                    return@thread
-                }
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：送單失敗 $body") }
                 val orderNo = JSONObject(body).getJSONObject("data").getString("order_no")
                 cart.clear()
-                runOnUiThread {
-                    renderCurrent()
-                    setStatus("狀態：送單成功 $orderNo")
-                }
+                runOnUiThread { renderCurrent(); setStatus("狀態：送單成功 $orderNo") }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：錯誤 ${e.message}") }
             }
@@ -206,36 +203,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun submitInventoryCheck() {
-        if (inventoryDraft.isEmpty()) {
-            setStatus("狀態：盤點清單為空")
-            return
-        }
+        if (inventoryDraft.isEmpty()) return setStatus("狀態：盤點清單為空")
         thread {
             try {
                 val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
                 val arr = JSONArray()
-                inventoryDraft.values.forEach {
-                    arr.put(JSONObject().put("product_id", it.productId).put("counted_qty", it.qty))
-                }
-                val payload = JSONObject()
-                    .put("company_id", 1)
-                    .put("store_id", storeId)
-                    .put("checked_by", 1)
-                    .put("items", arr)
+                inventoryDraft.values.forEach { arr.put(JSONObject().put("product_id", it.productId).put("counted_qty", it.qty)) }
+                val payload = JSONObject().put("company_id", 1).put("store_id", storeId).put("checked_by", 1).put("items", arr)
                 val req = Request.Builder().url("$apiBase/inventory/check")
                     .post(payload.toString().toRequestBody("application/json".toMediaType())).build()
                 val res = client.newCall(req).execute()
                 val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：盤點失敗 $body") }
-                    return@thread
-                }
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：盤點失敗 $body") }
                 val checkNo = JSONObject(body).getJSONObject("data").getString("check_no")
                 inventoryDraft.clear()
-                runOnUiThread {
-                    renderCurrent()
-                    setStatus("狀態：盤點成功 $checkNo")
-                }
+                runOnUiThread { renderCurrent(); setStatus("狀態：盤點成功 $checkNo") }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：錯誤 ${e.message}") }
             }
@@ -243,348 +225,77 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun applySalesEdit() {
-        if (mode != Mode.SALES) return
         val pid = salesEditProductIdInput.text.toString().toIntOrNull()
         val qty = salesEditQtyInput.text.toString().toIntOrNull()
-        if (pid == null || qty == null) {
-            setStatus("狀態：請輸入銷售商品ID與新數量")
-            return
-        }
-        val item = cart[pid]
-        if (item == null) {
-            setStatus("狀態：購物車沒有商品ID=$pid")
-            return
-        }
-        if (qty <= 0) {
-            cart.remove(pid)
-            setStatus("狀態：已移除商品ID=$pid")
-        } else {
-            item.qty = qty
-            setStatus("狀態：已更新商品ID=$pid 數量=$qty")
-        }
-        renderCurrent()
+        if (pid == null || qty == null) return setStatus("狀態：請輸入銷售商品ID與新數量")
+        val item = cart[pid] ?: return setStatus("狀態：購物車沒有商品ID=$pid")
+        if (qty <= 0) cart.remove(pid) else item.qty = qty
+        renderCurrent(); setStatus("狀態：已更新銷售項目")
     }
 
     private fun removeSalesItem() {
-        if (mode != Mode.SALES) return
-        val pid = salesEditProductIdInput.text.toString().toIntOrNull()
-        if (pid == null) {
-            setStatus("狀態：請輸入要刪除的商品ID")
-            return
-        }
-        if (cart.remove(pid) != null) {
-            setStatus("狀態：已刪除商品ID=$pid")
-            renderCurrent()
-        } else {
-            setStatus("狀態：購物車沒有商品ID=$pid")
-        }
+        val pid = salesEditProductIdInput.text.toString().toIntOrNull() ?: return setStatus("狀態：請輸入要刪除的商品ID")
+        if (cart.remove(pid) != null) { renderCurrent(); setStatus("狀態：已刪除商品ID=$pid") }
+        else setStatus("狀態：購物車沒有商品ID=$pid")
     }
 
     private fun removeLastInventoryItem() {
-        if (mode != Mode.INVENTORY) return
         val pid = lastInventoryProductId ?: return
         inventoryDraft.remove(pid)
         lastInventoryProductId = inventoryDraft.keys.lastOrNull()
-        renderCurrent()
-        setStatus("狀態：已刪最後一筆")
+        renderCurrent(); setStatus("狀態：已刪最後一筆")
     }
 
     private fun applyInventoryEdit() {
-        if (mode != Mode.INVENTORY) return
         val pid = inventoryEditProductIdInput.text.toString().toIntOrNull()
         val qty = inventoryEditQtyInput.text.toString().toIntOrNull()
-        if (pid == null || qty == null) {
-            setStatus("狀態：請輸入商品ID與新實盤數")
-            return
-        }
-        val item = inventoryDraft[pid]
-        if (item == null) {
-            setStatus("狀態：盤點清單沒有商品ID=$pid")
-            return
-        }
+        if (pid == null || qty == null) return setStatus("狀態：請輸入商品ID與新實盤數")
+        val item = inventoryDraft[pid] ?: return setStatus("狀態：盤點清單沒有商品ID=$pid")
         item.qty = if (qty < 0) 0 else qty
-        renderCurrent()
-        setStatus("狀態：已更新商品ID=$pid 實盤數=$qty")
+        renderCurrent(); setStatus("狀態：已更新盤點項目")
     }
 
-    private fun fetchReports() {
-        val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
-        val from = fromDateInput.text.toString().trim()
-        val to = toDateInput.text.toString().trim()
-        if (from.isBlank() || to.isBlank()) {
-            setStatus("狀態：請輸入起訖日期")
-            return
-        }
-
-        setStatus("狀態：查詢報表中...")
-        thread {
-            try {
-                val dailyUrl = "$apiBase/reports/daily-sales?company_id=1&store_id=$storeId&from=$from&to=$to"
-                val mixUrl = "$apiBase/reports/payment-mix?company_id=1&store_id=$storeId&from=$from&to=$to"
-
-                val dailyRes = client.newCall(Request.Builder().url(dailyUrl).build()).execute()
-                val dailyBody = dailyRes.body?.string().orEmpty()
-                val mixRes = client.newCall(Request.Builder().url(mixUrl).build()).execute()
-                val mixBody = mixRes.body?.string().orEmpty()
-
-                if (!dailyRes.isSuccessful || !mixRes.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：報表查詢失敗") }
-                    return@thread
-                }
-
-                val daily = JSONObject(dailyBody).getJSONArray("data")
-                val mix = JSONObject(mixBody).getJSONArray("data")
-
-                val sb = StringBuilder()
-                sb.append("【營收報表】店別=$storeId 期間 $from ~ $to\n")
-                var total = 0.0
-                for (i in 0 until daily.length()) {
-                    val r = daily.getJSONObject(i)
-                    val amount = r.getString("total_sales").toDoubleOrNull() ?: 0.0
-                    total += amount
-                    sb.append("${r.getString("business_date")} ${r.getString("store_name")} ")
-                        .append("單數:${r.getInt("order_count")} 營收:${r.getString("total_sales")}\n")
-                }
-                sb.append("小計：${"%.2f".format(total)}\n\n")
-                sb.append("【支付占比】\n")
-                for (i in 0 until mix.length()) {
-                    val r = mix.getJSONObject(i)
-                    val amt = r.getString("total_amount").toDoubleOrNull() ?: 0.0
-                    val pct = if (total > 0) amt * 100.0 / total else 0.0
-                    sb.append("${r.getString("method_name")} 筆數:${r.getInt("txn_count")} 金額:${r.getString("total_amount")} (${"%.1f".format(pct)}%)\n")
-                }
-                runOnUiThread {
-                    cartText.text = sb.toString()
-                    setStatus("狀態：報表查詢完成")
-                }
-            } catch (e: Exception) {
-                runOnUiThread { setStatus("狀態：報表錯誤 ${e.message}") }
-            }
-        }
-    }
-
-    private fun fetchSyncStatus() {
-        setStatus("狀態：查詢總店同步監控中...")
-        thread {
-            try {
-                val url = "$apiBase/sync/status?company_id=1"
-                val res = client.newCall(Request.Builder().url(url).build()).execute()
-                val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：同步監控查詢失敗") }
-                    return@thread
-                }
-
-                val data = JSONObject(body).getJSONObject("data")
-                val summary = data.getJSONArray("summary")
-                val byStore = data.getJSONArray("by_store")
-
-                val sb = StringBuilder()
-                sb.append("【同步狀態統計】\n")
-                for (i in 0 until summary.length()) {
-                    val r = summary.getJSONObject(i)
-                    sb.append("${r.getString("sync_status")}: ${r.getInt("cnt")}\n")
-                }
-                sb.append("\n【分店同步狀況】\n")
-                for (i in 0 until byStore.length()) {
-                    val r = byStore.getJSONObject(i)
-                    sb.append("店ID ${r.getInt("source_store_id")} ${r.optString("store_name", "")}")
-                        .append("\n上傳次數:${r.getInt("upload_count")}")
-                        .append(" 最後上傳:${r.optString("last_upload_at", "-")}")
-                        .append("\n最後同步:${r.optString("last_synced_at", "-")}\n\n")
-                }
-
-                runOnUiThread {
-                    cartText.text = sb.toString()
-                    setStatus("狀態：同步監控查詢完成")
-                }
-            } catch (e: Exception) {
-                runOnUiThread { setStatus("狀態：同步監控錯誤 ${e.message}") }
-            }
-        }
-    }
-
-    private fun fetchHqSummary() {
-        setStatus("狀態：查詢總店營運總覽中...")
-        thread {
-            try {
-                val date = toDateInput.text.toString().trim().ifBlank { "2026-02-27" }
-                val url = "$apiBase/dashboard/hq-summary?company_id=1&business_date=$date"
-                val res = client.newCall(Request.Builder().url(url).build()).execute()
-                val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：總店總覽查詢失敗") }
-                    return@thread
-                }
-
-                val d = JSONObject(body).getJSONObject("data")
-                val sync = d.getJSONArray("sync_summary")
-                val sb = StringBuilder()
-                sb.append("【總店營運總覽】\n")
-                sb.append("營業日: ${d.getString("business_date")}\n")
-                sb.append("訂單數: ${d.getInt("order_count")}\n")
-                sb.append("營收: ${d.getDouble("total_sales")}\n")
-                sb.append("啟用分店數: ${d.getInt("active_store_count")}\n")
-                sb.append("低庫存筆數: ${d.getInt("low_stock_count")}\n\n")
-                sb.append("【同步狀態】\n")
-                for (i in 0 until sync.length()) {
-                    val r = sync.getJSONObject(i)
-                    sb.append("${r.getString("sync_status")}: ${r.getInt("cnt")}\n")
-                }
-
-                runOnUiThread {
-                    cartText.text = sb.toString()
-                    setStatus("狀態：總店營運總覽完成")
-                }
-            } catch (e: Exception) {
-                runOnUiThread { setStatus("狀態：總店總覽錯誤 ${e.message}") }
-            }
-        }
-    }
-
-    private fun fetchStoreRanking() {
-        setStatus("狀態：查詢分店營收排行中...")
-        thread {
-            try {
-                val from = fromDateInput.text.toString().trim().ifBlank { "2026-02-27" }
-                val to = toDateInput.text.toString().trim().ifBlank { "2026-02-27" }
-                val url = "$apiBase/reports/store-ranking?company_id=1&from=$from&to=$to"
-                val res = client.newCall(Request.Builder().url(url).build()).execute()
-                val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：分店排行查詢失敗") }
-                    return@thread
-                }
-
-                val arr = JSONObject(body).getJSONArray("data")
-                val sb = StringBuilder()
-                sb.append("【分店營收排行】$from ~ $to\n")
-                for (i in 0 until arr.length()) {
-                    val r = arr.getJSONObject(i)
-                    sb.append("#${i + 1} 店ID ${r.getInt("store_id")} ${r.getString("store_name")}\n")
-                    sb.append("單數:${r.getInt("order_count")} 營收:${r.getString("total_sales")} 客單:${r.getString("avg_ticket")}\n\n")
-                }
-
-                runOnUiThread {
-                    cartText.text = sb.toString()
-                    setStatus("狀態：分店排行查詢完成")
-                }
-            } catch (e: Exception) {
-                runOnUiThread { setStatus("狀態：分店排行錯誤 ${e.message}") }
-            }
-        }
-    }
-
-    private fun fetchLowStock() {
-        setStatus("狀態：查詢低庫存明細中...")
-        thread {
-            try {
-                val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
-                val url = "$apiBase/reports/low-stock?company_id=1&store_id=$storeId"
-                val res = client.newCall(Request.Builder().url(url).build()).execute()
-                val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：低庫存查詢失敗") }
-                    return@thread
-                }
-
-                val arr = JSONObject(body).getJSONArray("data")
-                val sb = StringBuilder()
-                sb.append("【低庫存明細】店別=$storeId\n")
-                if (arr.length() == 0) {
-                    sb.append("目前無低庫存商品\n")
-                } else {
-                    for (i in 0 until arr.length()) {
-                        val r = arr.getJSONObject(i)
-                        sb.append("商品ID ${r.getInt("product_id")} ${r.getString("name")}\n")
-                        sb.append("現有:${r.getString("qty_on_hand")} 安全:${r.getString("safety_stock")} 缺口:${r.getString("shortage")}\n\n")
-                    }
-                }
-
-                runOnUiThread {
-                    cartText.text = sb.toString()
-                    setStatus("狀態：低庫存查詢完成")
-                }
-            } catch (e: Exception) {
-                runOnUiThread { setStatus("狀態：低庫存錯誤 ${e.message}") }
-            }
-        }
-    }
-
-    private fun fetchReplenishmentSuggestions() {
-        setStatus("狀態：查詢補貨建議中...")
-        thread {
-            try {
-                val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
-                val url = "$apiBase/reports/replenishment-suggestions?company_id=1&store_id=$storeId&target_multiplier=1.5"
-                val res = client.newCall(Request.Builder().url(url).build()).execute()
-                val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：補貨建議查詢失敗") }
-                    return@thread
-                }
-
-                val root = JSONObject(body)
-                val arr = root.getJSONArray("data")
-                val mult = root.getJSONObject("meta").getDouble("target_multiplier")
-                val sb = StringBuilder()
-                sb.append("【補貨建議】店別=$storeId 目標=安全庫存x$mult\n")
-                if (arr.length() == 0) {
-                    sb.append("目前無需補貨商品\n")
-                } else {
-                    for (i in 0 until arr.length()) {
-                        val r = arr.getJSONObject(i)
-                        sb.append("商品ID ${r.getInt("product_id")} ${r.getString("name")}\n")
-                        sb.append("現有:${r.getString("qty_on_hand")} 目標:${r.getString("target_stock")} 建議補:${r.getString("suggested_replenish")}\n\n")
-                    }
-                }
-
-                runOnUiThread {
-                    cartText.text = sb.toString()
-                    setStatus("狀態：補貨建議查詢完成")
-                }
-            } catch (e: Exception) {
-                runOnUiThread { setStatus("狀態：補貨建議錯誤 ${e.message}") }
-            }
-        }
-    }
+    private fun fetchReports() = reportRequest("營業報表", "$apiBase/reports/daily-sales?company_id=1&store_id=${store()}&from=${from()}&to=${to()}")
+    private fun fetchStoreRanking() = reportRequest("分店營收排行", "$apiBase/reports/store-ranking?company_id=1&from=${from()}&to=${to()}")
+    private fun fetchLowStock() = reportRequest("低庫存明細", "$apiBase/reports/low-stock?company_id=1&store_id=${store()}")
+    private fun fetchReplenishmentSuggestions() = reportRequest("補貨建議", "$apiBase/reports/replenishment-suggestions?company_id=1&store_id=${store()}&target_multiplier=1.5")
+    private fun fetchSyncStatus() = reportRequest("總店同步監控", "$apiBase/sync/status?company_id=1")
+    private fun fetchHqSummary() = reportRequest("總店營運總覽", "$apiBase/dashboard/hq-summary?company_id=1&business_date=${to()}")
 
     private fun createPoDraft() {
         setStatus("狀態：產生採購單草稿中...")
         thread {
             try {
-                val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
-                val payload = JSONObject()
-                    .put("company_id", 1)
-                    .put("store_id", storeId)
-                    .put("supplier_id", 1)
-                    .put("target_multiplier", 1.5)
-
-                val req = Request.Builder()
-                    .url("$apiBase/purchase-orders/draft-from-replenishment")
-                    .post(payload.toString().toRequestBody("application/json".toMediaType()))
-                    .build()
-
+                val payload = JSONObject().put("company_id", 1).put("store_id", store()).put("supplier_id", 1).put("target_multiplier", 1.5)
+                val req = Request.Builder().url("$apiBase/purchase-orders/draft-from-replenishment")
+                    .post(payload.toString().toRequestBody("application/json".toMediaType())).build()
                 val res = client.newCall(req).execute()
                 val body = res.body?.string().orEmpty()
-                if (!res.isSuccessful) {
-                    runOnUiThread { setStatus("狀態：PO草稿建立失敗 $body") }
-                    return@thread
-                }
-
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：PO草稿失敗 $body") }
                 val d = JSONObject(body).getJSONObject("data")
-                val sb = StringBuilder()
-                sb.append("【PO Draft 已建立】\n")
-                sb.append("PO單號: ${d.getString("po_no")}\n")
-                sb.append("項目數: ${d.getInt("item_count")}\n")
-                sb.append("總金額: ${d.getDouble("total_amount")}\n")
-
                 runOnUiThread {
-                    cartText.text = sb.toString()
+                    cartText.text = "PO單號: ${d.getString("po_no")}\n項目數: ${d.getInt("item_count")}\n總金額: ${d.getDouble("total_amount")}" 
                     setStatus("狀態：PO草稿建立成功")
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：PO草稿錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun reportRequest(title: String, url: String) {
+        setStatus("狀態：查詢${title}中...")
+        thread {
+            try {
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：$title 查詢失敗") }
+                runOnUiThread {
+                    cartText.text = "【$title】\n$body"
+                    setStatus("狀態：$title 查詢完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：$title 錯誤 ${e.message}") }
             }
         }
     }
@@ -608,7 +319,8 @@ class MainActivity : AppCompatActivity() {
         cartText.text = sb.toString()
     }
 
-    private fun setStatus(text: String) {
-        statusText.text = text
-    }
+    private fun store() = storeIdInput.text.toString().toIntOrNull() ?: 1
+    private fun from() = fromDateInput.text.toString().trim().ifBlank { "2026-02-27" }
+    private fun to() = toDateInput.text.toString().trim().ifBlank { "2026-02-27" }
+    private fun setStatus(text: String) { statusText.text = text }
 }

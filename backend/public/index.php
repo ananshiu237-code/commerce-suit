@@ -145,6 +145,79 @@ try {
     out(['ok' => true, 'data' => ['check_id' => $checkId, 'check_no' => $checkNo]]);
   }
 
+
+  if ($method === 'GET' && $p === '/api/reports/daily-sales') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $from = $_GET['from'] ?? date('Y-m-d');
+    $to = $_GET['to'] ?? date('Y-m-d');
+
+    $pdo = db();
+    $sql = "SELECT o.business_date, o.store_id, s.store_name,
+                   COUNT(*) order_count,
+                   SUM(o.total_amount) total_sales,
+                   SUM(o.paid_amount) total_paid
+            FROM orders o
+            JOIN stores s ON s.id = o.store_id
+            WHERE o.company_id=:company_id
+              AND o.business_date BETWEEN :dfrom AND :dto
+              AND o.status='paid'
+            GROUP BY o.business_date, o.store_id, s.store_name
+            ORDER BY o.business_date DESC, o.store_id";
+    $st = $pdo->prepare($sql);
+    $st->execute(['company_id'=>$companyId,'dfrom'=>$from,'dto'=>$to]);
+    out(['ok'=>true,'data'=>$st->fetchAll()]);
+  }
+
+  if ($method === 'GET' && $p === '/api/reports/payment-mix') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $from = $_GET['from'] ?? date('Y-m-d');
+    $to = $_GET['to'] ?? date('Y-m-d');
+
+    $pdo = db();
+    $sql = "SELECT pm.code method_code, pm.name method_name,
+                   COUNT(p.id) txn_count,
+                   SUM(p.amount) total_amount
+            FROM payments p
+            JOIN payment_methods pm ON pm.id = p.payment_method_id
+            JOIN orders o ON o.id = p.order_id
+            WHERE p.company_id=:company_id
+              AND o.business_date BETWEEN :dfrom AND :dto
+            GROUP BY pm.code, pm.name
+            ORDER BY total_amount DESC";
+    $st = $pdo->prepare($sql);
+    $st->execute(['company_id'=>$companyId,'dfrom'=>$from,'dto'=>$to]);
+    out(['ok'=>true,'data'=>$st->fetchAll()]);
+  }
+
+  if ($method === 'POST' && $p === '/api/sync/upload') {
+    $b = body();
+    $companyId = (int)($b['company_id'] ?? 1);
+    $sourceStoreId = (int)($b['source_store_id'] ?? 0);
+    $syncType = $b['sync_type'] ?? 'order_batch';
+    $idempotencyKey = trim((string)($b['idempotency_key'] ?? ''));
+    $payload = $b['payload'] ?? [];
+
+    if ($sourceStoreId <= 0 || $idempotencyKey === '') {
+      out(['ok'=>false,'error'=>'source_store_id_and_idempotency_key_required'],422);
+    }
+
+    $pdo = db();
+    $sql = "INSERT INTO branch_sync_logs
+      (company_id, source_store_id, sync_type, idempotency_key, payload_json, sync_status, synced_at)
+      VALUES (:company_id,:source_store_id,:sync_type,:idempotency_key,:payload_json,'received',NOW())
+      ON DUPLICATE KEY UPDATE sync_status='duplicate', synced_at=NOW()";
+    $st = $pdo->prepare($sql);
+    $st->execute([
+      'company_id'=>$companyId,
+      'source_store_id'=>$sourceStoreId,
+      'sync_type'=>$syncType,
+      'idempotency_key'=>$idempotencyKey,
+      'payload_json'=>json_encode($payload, JSON_UNESCAPED_UNICODE),
+    ]);
+
+    out(['ok'=>true,'data'=>['source_store_id'=>$sourceStoreId,'idempotency_key'=>$idempotencyKey]]);
+  }
+
   if ($method === 'POST' && $p === '/api/orders') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

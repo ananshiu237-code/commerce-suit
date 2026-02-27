@@ -199,6 +199,34 @@ try {
     out(['ok'=>true,'data'=>$st->fetchAll()]);
   }
 
+  if ($method === 'GET' && $p === '/api/sync/status') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $pdo = db();
+
+    $summarySql = "SELECT sync_status, COUNT(*) cnt
+                   FROM branch_sync_logs
+                   WHERE company_id=:company_id
+                   GROUP BY sync_status";
+    $st1 = $pdo->prepare($summarySql);
+    $st1->execute(['company_id' => $companyId]);
+    $summary = $st1->fetchAll();
+
+    $storeSql = "SELECT l.source_store_id, s.store_name,
+                        COUNT(*) upload_count,
+                        MAX(l.created_at) last_upload_at,
+                        MAX(l.synced_at) last_synced_at
+                 FROM branch_sync_logs l
+                 LEFT JOIN stores s ON s.id = l.source_store_id
+                 WHERE l.company_id=:company_id
+                 GROUP BY l.source_store_id, s.store_name
+                 ORDER BY last_upload_at DESC";
+    $st2 = $pdo->prepare($storeSql);
+    $st2->execute(['company_id' => $companyId]);
+    $byStore = $st2->fetchAll();
+
+    out(['ok' => true, 'data' => ['summary' => $summary, 'by_store' => $byStore]]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

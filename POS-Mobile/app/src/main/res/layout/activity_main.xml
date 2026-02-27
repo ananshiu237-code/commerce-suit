@@ -1,111 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/titleText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="POS-Mobile 掃碼銷售 / 盤點"
-        android:textStyle="bold"
-        android:textSize="22sp"
-        android:layout_marginBottom="8dp" />
-
-    <TextView
-        android:id="@+id/statusText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="狀態：待命"
-        android:textSize="14sp"
-        android:layout_marginBottom="12dp" />
-
-    <Button
-        android:id="@+id/modeButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="切換模式：目前 銷售" />
-
-    <Button
-        android:id="@+id/scanButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="掃描商品二維碼"
-        android:layout_marginTop="8dp" />
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:id="@+id/inventoryControls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="8dp">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <EditText
-            android:id="@+id/inventoryQtyInput"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="盤點模式：輸入實盤數（預設1）"
-            android:inputType="number"
-            android:text="1" />
+            android:text="POS-Mobile 掃碼銷售 / 盤點 / 報表"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="狀態：待命"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp" />
 
         <Button
-            android:id="@+id/removeLastButton"
-            android:layout_width="wrap_content"
+            android:id="@+id/modeButton"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="刪最後" />
-    </LinearLayout>
+            android:text="切換模式：目前 銷售" />
 
-    <Button
-        android:id="@+id/rangeButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="報表區間：今日"
-        android:layout_marginTop="8dp" />
+        <Button
+            android:id="@+id/scanButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="掃描商品二維碼"
+            android:layout_marginTop="8dp" />
 
-    <Button
-        android:id="@+id/checkoutButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="送出訂單（銷售模式）"
-        android:layout_marginTop="8dp" />
+        <LinearLayout
+            android:id="@+id/inventoryControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
 
-    <Button
-        android:id="@+id/inventoryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="送出盤點（盤點模式）"
-        android:layout_marginTop="8dp" />
+            <EditText
+                android:id="@+id/inventoryQtyInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="盤點實盤數"
+                android:inputType="number"
+                android:text="1" />
 
-    <Button
-        android:id="@+id/reportButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="查詢今日營業報表"
-        android:layout_marginTop="8dp" />
+            <Button
+                android:id="@+id/removeLastButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="刪最後" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/cartTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="明細："
-        android:textStyle="bold"
-        android:layout_marginTop="16dp" />
+        <LinearLayout
+            android:id="@+id/inventoryEditControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="8dp">
+            <EditText
+                android:id="@+id/inventoryEditProductIdInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="商品ID"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/inventoryEditQtyInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="新實盤數"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/inventoryApplyEditButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="套用" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/checkoutButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="送出訂單（銷售模式）"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/inventoryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="送出盤點（盤點模式）"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="報表條件"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp">
+
+            <EditText
+                android:id="@+id/storeIdInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="店別ID"
+                android:text="1"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/fromDateInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="起日 YYYY-MM-DD"
+                android:inputType="text"
+                android:text="2026-02-27" />
+
+            <EditText
+                android:id="@+id/toDateInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="訖日 YYYY-MM-DD"
+                android:inputType="text"
+                android:text="2026-02-27" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/reportButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="查詢營業報表（依條件）"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/cartTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="明細："
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
 
         <TextView
             android:id="@+id/cartText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="（尚無資料）"
-            android:textSize="15sp" />
-    </ScrollView>
+            android:textSize="15sp"
+            android:layout_marginTop="8dp" />
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>

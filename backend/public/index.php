@@ -148,6 +148,7 @@ try {
 
   if ($method === 'GET' && $p === '/api/reports/daily-sales') {
     $companyId = (int)($_GET['company_id'] ?? 1);
+    $storeId = (int)($_GET['store_id'] ?? 0);
     $from = $_GET['from'] ?? date('Y-m-d');
     $to = $_GET['to'] ?? date('Y-m-d');
 
@@ -160,16 +161,21 @@ try {
             JOIN stores s ON s.id = o.store_id
             WHERE o.company_id=:company_id
               AND o.business_date BETWEEN :dfrom AND :dto
-              AND o.status='paid'
-            GROUP BY o.business_date, o.store_id, s.store_name
-            ORDER BY o.business_date DESC, o.store_id";
+              AND o.status='paid'";
+    $params = ['company_id'=>$companyId,'dfrom'=>$from,'dto'=>$to];
+    if ($storeId > 0) {
+      $sql .= " AND o.store_id = :store_id";
+      $params['store_id'] = $storeId;
+    }
+    $sql .= " GROUP BY o.business_date, o.store_id, s.store_name ORDER BY o.business_date DESC, o.store_id";
     $st = $pdo->prepare($sql);
-    $st->execute(['company_id'=>$companyId,'dfrom'=>$from,'dto'=>$to]);
+    $st->execute($params);
     out(['ok'=>true,'data'=>$st->fetchAll()]);
   }
 
   if ($method === 'GET' && $p === '/api/reports/payment-mix') {
     $companyId = (int)($_GET['company_id'] ?? 1);
+    $storeId = (int)($_GET['store_id'] ?? 0);
     $from = $_GET['from'] ?? date('Y-m-d');
     $to = $_GET['to'] ?? date('Y-m-d');
 
@@ -181,11 +187,15 @@ try {
             JOIN payment_methods pm ON pm.id = p.payment_method_id
             JOIN orders o ON o.id = p.order_id
             WHERE p.company_id=:company_id
-              AND o.business_date BETWEEN :dfrom AND :dto
-            GROUP BY pm.code, pm.name
-            ORDER BY total_amount DESC";
+              AND o.business_date BETWEEN :dfrom AND :dto";
+    $params = ['company_id'=>$companyId,'dfrom'=>$from,'dto'=>$to];
+    if ($storeId > 0) {
+      $sql .= " AND o.store_id = :store_id";
+      $params['store_id'] = $storeId;
+    }
+    $sql .= " GROUP BY pm.code, pm.name ORDER BY total_amount DESC";
     $st = $pdo->prepare($sql);
-    $st->execute(['company_id'=>$companyId,'dfrom'=>$from,'dto'=>$to]);
+    $st->execute($params);
     out(['ok'=>true,'data'=>$st->fetchAll()]);
   }
 

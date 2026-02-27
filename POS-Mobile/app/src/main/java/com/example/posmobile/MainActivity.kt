@@ -1,6 +1,5 @@
 package com.example.posmobile
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -37,9 +36,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var checkoutButton: Button
     private lateinit var inventoryButton: Button
     private lateinit var inventoryControls: LinearLayout
+    private lateinit var salesEditControls: LinearLayout
     private lateinit var inventoryEditControls: LinearLayout
 
     private lateinit var inventoryQtyInput: EditText
+    private lateinit var salesEditProductIdInput: EditText
+    private lateinit var salesEditQtyInput: EditText
     private lateinit var inventoryEditProductIdInput: EditText
     private lateinit var inventoryEditQtyInput: EditText
 
@@ -66,9 +68,12 @@ class MainActivity : AppCompatActivity() {
         checkoutButton = findViewById(R.id.checkoutButton)
         inventoryButton = findViewById(R.id.inventoryButton)
         inventoryControls = findViewById(R.id.inventoryControls)
+        salesEditControls = findViewById(R.id.salesEditControls)
         inventoryEditControls = findViewById(R.id.inventoryEditControls)
 
         inventoryQtyInput = findViewById(R.id.inventoryQtyInput)
+        salesEditProductIdInput = findViewById(R.id.salesEditProductIdInput)
+        salesEditQtyInput = findViewById(R.id.salesEditQtyInput)
         inventoryEditProductIdInput = findViewById(R.id.inventoryEditProductIdInput)
         inventoryEditQtyInput = findViewById(R.id.inventoryEditQtyInput)
 
@@ -79,8 +84,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.modeButton).setOnClickListener { toggleMode() }
         findViewById<Button>(R.id.scanButton).setOnClickListener { startScan() }
         findViewById<Button>(R.id.checkoutButton).setOnClickListener { checkout() }
-        findViewById<Button>(R.id.inventoryButton).setOnClickListener { confirmAndSubmitInventoryCheck() }
+        findViewById<Button>(R.id.inventoryButton).setOnClickListener { submitInventoryCheck() }
         findViewById<Button>(R.id.removeLastButton).setOnClickListener { removeLastInventoryItem() }
+        findViewById<Button>(R.id.salesApplyEditButton).setOnClickListener { applySalesEdit() }
+        findViewById<Button>(R.id.salesRemoveButton).setOnClickListener { removeSalesItem() }
         findViewById<Button>(R.id.inventoryApplyEditButton).setOnClickListener { applyInventoryEdit() }
         findViewById<Button>(R.id.reportButton).setOnClickListener { fetchReports() }
 
@@ -100,6 +107,7 @@ class MainActivity : AppCompatActivity() {
         modeButton.text = "切換模式：目前 ${if (isSales) "銷售" else "盤點"}"
         checkoutButton.visibility = if (isSales) View.VISIBLE else View.GONE
         inventoryButton.visibility = if (isSales) View.GONE else View.VISIBLE
+        salesEditControls.visibility = if (isSales) View.VISIBLE else View.GONE
         inventoryControls.visibility = if (isSales) View.GONE else View.VISIBLE
         inventoryEditControls.visibility = if (isSales) View.GONE else View.VISIBLE
     }
@@ -191,20 +199,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun confirmAndSubmitInventoryCheck() {
+    private fun submitInventoryCheck() {
         if (inventoryDraft.isEmpty()) {
             setStatus("狀態：盤點清單為空")
             return
         }
-        AlertDialog.Builder(this)
-            .setTitle("確認送出盤點")
-            .setMessage("會以實盤數覆蓋庫存，確定送出？")
-            .setPositiveButton("確定") { _, _ -> submitInventoryCheck() }
-            .setNegativeButton("取消", null)
-            .show()
-    }
-
-    private fun submitInventoryCheck() {
         thread {
             try {
                 val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
@@ -234,6 +233,44 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：錯誤 ${e.message}") }
             }
+        }
+    }
+
+    private fun applySalesEdit() {
+        if (mode != Mode.SALES) return
+        val pid = salesEditProductIdInput.text.toString().toIntOrNull()
+        val qty = salesEditQtyInput.text.toString().toIntOrNull()
+        if (pid == null || qty == null) {
+            setStatus("狀態：請輸入銷售商品ID與新數量")
+            return
+        }
+        val item = cart[pid]
+        if (item == null) {
+            setStatus("狀態：購物車沒有商品ID=$pid")
+            return
+        }
+        if (qty <= 0) {
+            cart.remove(pid)
+            setStatus("狀態：已移除商品ID=$pid")
+        } else {
+            item.qty = qty
+            setStatus("狀態：已更新商品ID=$pid 數量=$qty")
+        }
+        renderCurrent()
+    }
+
+    private fun removeSalesItem() {
+        if (mode != Mode.SALES) return
+        val pid = salesEditProductIdInput.text.toString().toIntOrNull()
+        if (pid == null) {
+            setStatus("狀態：請輸入要刪除的商品ID")
+            return
+        }
+        if (cart.remove(pid) != null) {
+            setStatus("狀態：已刪除商品ID=$pid")
+            renderCurrent()
+        } else {
+            setStatus("狀態：購物車沒有商品ID=$pid")
         }
     }
 

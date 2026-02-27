@@ -39,12 +39,20 @@
             android:text="掃描商品二維碼"
             android:layout_marginTop="8dp" />
 
+        <TextView
+            android:id="@+id/inventoryQtyLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="盤點實盤數"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+
         <LinearLayout
             android:id="@+id/inventoryControls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="4dp">
 
             <EditText
                 android:id="@+id/inventoryQtyInput"
@@ -60,6 +68,42 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="刪最後" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/salesEditControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/salesEditProductIdInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="銷售商品ID"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/salesEditQtyInput"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="新數量"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/salesApplyEditButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="套用" />
+
+            <Button
+                android:id="@+id/salesRemoveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="刪品" />
         </LinearLayout>
 
         <LinearLayout

@@ -342,6 +342,88 @@ try {
     out(['ok' => true, 'data' => $st->fetchAll(), 'meta' => ['target_multiplier' => $multiplier]]);
   }
 
+  if ($method === 'POST' && $p === '/api/purchase-orders/draft-from-replenishment') {
+    $b = body();
+    $companyId = (int)($b['company_id'] ?? 1);
+    $storeId = (int)($b['store_id'] ?? 1);
+    $supplierId = (int)($b['supplier_id'] ?? 1);
+    $multiplier = (float)($b['target_multiplier'] ?? 1.5);
+    if ($multiplier < 1) $multiplier = 1;
+
+    $pdo = db();
+    $pdo->beginTransaction();
+
+    $suggestSql = "SELECT i.product_id, p.cost,
+                          ROUND((i.safety_stock * :multiplier) - i.qty_on_hand, 3) suggested_qty
+                   FROM store_inventory i
+                   JOIN products p ON p.id = i.product_id
+                   WHERE i.company_id=:company_id
+                     AND i.store_id=:store_id
+                     AND p.is_active=1
+                     AND i.qty_on_hand < (i.safety_stock * :multiplier2)
+                   ORDER BY suggested_qty DESC, p.id ASC";
+    $st = $pdo->prepare($suggestSql);
+    $st->execute([
+      'company_id' => $companyId,
+      'store_id' => $storeId,
+      'multiplier' => $multiplier,
+      'multiplier2' => $multiplier,
+    ]);
+    $rows = $st->fetchAll();
+
+    if (count($rows) === 0) {
+      $pdo->rollBack();
+      out(['ok' => false, 'error' => 'NO_REPLENISHMENT_ITEMS'], 422);
+    }
+
+    $poNo = 'PO' . date('YmdHis') . rand(100, 999);
+    $insPo = $pdo->prepare("INSERT INTO purchase_orders
+      (company_id, store_id, supplier_id, po_no, status, order_date, total_amount)
+      VALUES (:company_id,:store_id,:supplier_id,:po_no,'draft',CURDATE(),0)");
+    $insPo->execute([
+      'company_id' => $companyId,
+      'store_id' => $storeId,
+      'supplier_id' => $supplierId,
+      'po_no' => $poNo,
+    ]);
+    $poId = (int)$pdo->lastInsertId();
+
+    $insItem = $pdo->prepare("INSERT INTO purchase_order_items
+      (purchase_order_id, product_id, qty, unit_cost, line_total)
+      VALUES (:purchase_order_id,:product_id,:qty,:unit_cost,:line_total)");
+
+    $total = 0.0;
+    foreach ($rows as $r) {
+      $qty = max(0.0, (float)$r['suggested_qty']);
+      $cost = (float)$r['cost'];
+      $line = $qty * $cost;
+      $total += $line;
+      $insItem->execute([
+        'purchase_order_id' => $poId,
+        'product_id' => (int)$r['product_id'],
+        'qty' => $qty,
+        'unit_cost' => $cost,
+        'line_total' => $line,
+      ]);
+    }
+
+    $updPo = $pdo->prepare("UPDATE purchase_orders SET total_amount=:total WHERE id=:id");
+    $updPo->execute(['total' => $total, 'id' => $poId]);
+
+    $audit = $pdo->prepare("INSERT INTO audit_logs
+      (company_id, store_id, actor_type, actor_id, action, entity_type, entity_id, detail_json)
+      VALUES (:company_id,:store_id,'user',1,'create_po_draft','purchase_orders',:entity_id,:detail_json)");
+    $audit->execute([
+      'company_id' => $companyId,
+      'store_id' => $storeId,
+      'entity_id' => $poId,
+      'detail_json' => json_encode(['po_no' => $poNo, 'target_multiplier' => $multiplier], JSON_UNESCAPED_UNICODE),
+    ]);
+
+    $pdo->commit();
+    out(['ok' => true, 'data' => ['po_id' => $poId, 'po_no' => $poNo, 'item_count' => count($rows), 'total_amount' => $total]]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

@@ -233,6 +233,13 @@
             android:text="查詢補貨建議"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/createPoDraftButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="一鍵產生採購單草稿"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/cartTitle"
             android:layout_width="match_parent"

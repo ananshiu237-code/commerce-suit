@@ -95,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.storeRankingButton).setOnClickListener { fetchStoreRanking() }
         findViewById<Button>(R.id.lowStockButton).setOnClickListener { fetchLowStock() }
         findViewById<Button>(R.id.replenishButton).setOnClickListener { fetchReplenishmentSuggestions() }
+        findViewById<Button>(R.id.createPoDraftButton).setOnClickListener { createPoDraft() }
 
         updateModeUI()
         renderCurrent()
@@ -544,6 +545,46 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：補貨建議錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun createPoDraft() {
+        setStatus("狀態：產生採購單草稿中...")
+        thread {
+            try {
+                val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
+                val payload = JSONObject()
+                    .put("company_id", 1)
+                    .put("store_id", storeId)
+                    .put("supplier_id", 1)
+                    .put("target_multiplier", 1.5)
+
+                val req = Request.Builder()
+                    .url("$apiBase/purchase-orders/draft-from-replenishment")
+                    .post(payload.toString().toRequestBody("application/json".toMediaType()))
+                    .build()
+
+                val res = client.newCall(req).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    runOnUiThread { setStatus("狀態：PO草稿建立失敗 $body") }
+                    return@thread
+                }
+
+                val d = JSONObject(body).getJSONObject("data")
+                val sb = StringBuilder()
+                sb.append("【PO Draft 已建立】\n")
+                sb.append("PO單號: ${d.getString("po_no")}\n")
+                sb.append("項目數: ${d.getInt("item_count")}\n")
+                sb.append("總金額: ${d.getDouble("total_amount")}\n")
+
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    setStatus("狀態：PO草稿建立成功")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：PO草稿錯誤 ${e.message}") }
             }
         }
     }

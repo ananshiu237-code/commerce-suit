@@ -466,11 +466,84 @@ try {
     out(['ok' => true, 'data' => ['po' => $po, 'items' => $stItems->fetchAll()]]);
   }
 
+  if ($method === 'POST' && preg_match('#^/api/purchase-orders/(\d+)/receive$#', $p, $m)) {
+    $poId = (int)$m[1];
+    $pdo = db();
+    $pdo->beginTransaction();
+
+    $stPo = $pdo->prepare("SELECT * FROM purchase_orders WHERE id=:id LIMIT 1");
+    $stPo->execute(['id' => $poId]);
+    $po = $stPo->fetch();
+    if (!$po) {
+      $pdo->rollBack();
+      out(['ok' => false, 'error' => 'PO_NOT_FOUND'], 404);
+    }
+
+    if (!in_array($po['status'], ['approved', 'ordered'], true)) {
+      $pdo->rollBack();
+      out(['ok' => false, 'error' => 'PO_STATUS_NOT_RECEIVABLE'], 422);
+    }
+
+    $stItems = $pdo->prepare("SELECT * FROM purchase_order_items WHERE purchase_order_id=:id");
+    $stItems->execute(['id' => $poId]);
+    $items = $stItems->fetchAll();
+    if (count($items) === 0) {
+      $pdo->rollBack();
+      out(['ok' => false, 'error' => 'PO_ITEMS_EMPTY'], 422);
+    }
+
+    $upInv = $pdo->prepare("UPDATE store_inventory
+      SET qty_on_hand = qty_on_hand + :qty
+      WHERE store_id = :store_id AND product_id = :product_id");
+    $insInvIfMissing = $pdo->prepare("INSERT INTO store_inventory (company_id, store_id, product_id, qty_on_hand, qty_reserved, safety_stock)
+      VALUES (:company_id, :store_id, :product_id, :qty_on_hand, 0, 0)");
+    $insTxn = $pdo->prepare("INSERT INTO inventory_txns
+      (company_id, store_id, product_id, txn_type, ref_type, ref_id, qty_change, reason, created_by)
+      VALUES (:company_id,:store_id,:product_id,'purchase_receive','purchase_order',:ref_id,:qty_change,'PO receive',1)");
+
+    foreach ($items as $it) {
+      $qty = (float)$it['qty'];
+      $pid = (int)$it['product_id'];
+      $upInv->execute(['qty' => $qty, 'store_id' => (int)$po['store_id'], 'product_id' => $pid]);
+      if ($upInv->rowCount() === 0) {
+        $insInvIfMissing->execute([
+          'company_id' => (int)$po['company_id'],
+          'store_id' => (int)$po['store_id'],
+          'product_id' => $pid,
+          'qty_on_hand' => $qty,
+        ]);
+      }
+      $insTxn->execute([
+        'company_id' => (int)$po['company_id'],
+        'store_id' => (int)$po['store_id'],
+        'product_id' => $pid,
+        'ref_id' => $poId,
+        'qty_change' => $qty,
+      ]);
+    }
+
+    $stUpd = $pdo->prepare("UPDATE purchase_orders SET status='received' WHERE id=:id");
+    $stUpd->execute(['id' => $poId]);
+
+    $audit = $pdo->prepare("INSERT INTO audit_logs
+      (company_id, store_id, actor_type, actor_id, action, entity_type, entity_id, detail_json)
+      VALUES (:company_id,:store_id,'user',1,'receive_po','purchase_orders',:entity_id,:detail_json)");
+    $audit->execute([
+      'company_id' => (int)$po['company_id'],
+      'store_id' => (int)$po['store_id'],
+      'entity_id' => $poId,
+      'detail_json' => json_encode(['po_no' => $po['po_no']], JSON_UNESCAPED_UNICODE),
+    ]);
+
+    $pdo->commit();
+    out(['ok' => true, 'data' => ['po_id' => $poId, 'status' => 'received']]);
+  }
+
   if ($method === 'POST' && preg_match('#^/api/purchase-orders/(\d+)/status$#', $p, $m)) {
     $poId = (int)$m[1];
     $b = body();
     $newStatus = strtolower(trim((string)($b['status'] ?? '')));
-    $allowed = ['draft', 'approved', 'ordered'];
+    $allowed = ['draft', 'approved', 'ordered', 'received'];
     if (!in_array($newStatus, $allowed, true)) out(['ok' => false, 'error' => 'INVALID_STATUS'], 422);
 
     $pdo = db();

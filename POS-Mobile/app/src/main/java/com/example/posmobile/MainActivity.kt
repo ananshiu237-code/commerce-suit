@@ -112,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.poDetailButton).setOnClickListener { fetchPoDetail() }
         findViewById<Button>(R.id.poApproveButton).setOnClickListener { updatePoStatus("approved") }
         findViewById<Button>(R.id.poOrderButton).setOnClickListener { updatePoStatus("ordered") }
+        findViewById<Button>(R.id.poReceiveButton).setOnClickListener { receivePo() }
 
         showPage(Page.SALES)
         renderCurrent()
@@ -353,6 +354,23 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread { setStatus("狀態：PO#$poId 已更新為 $status") }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：PO狀態更新錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun receivePo() {
+        val poId = poIdInput.text.toString().toIntOrNull() ?: return setStatus("狀態：請輸入PO ID")
+        setStatus("狀態：PO收貨入庫中...")
+        thread {
+            try {
+                val req = Request.Builder().url("$apiBase/purchase-orders/$poId/receive")
+                    .post("{}".toRequestBody("application/json".toMediaType())).build()
+                val res = client.newCall(req).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) return@thread runOnUiThread { setStatus("狀態：收貨失敗 $body") }
+                runOnUiThread { setStatus("狀態：PO#$poId 已收貨入庫") }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：收貨錯誤 ${e.message}") }
             }
         }
     }

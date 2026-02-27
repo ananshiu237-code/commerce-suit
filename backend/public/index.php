@@ -227,6 +227,49 @@ try {
     out(['ok' => true, 'data' => ['summary' => $summary, 'by_store' => $byStore]]);
   }
 
+  if ($method === 'GET' && $p === '/api/dashboard/hq-summary') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $businessDate = $_GET['business_date'] ?? date('Y-m-d');
+    $pdo = db();
+
+    $salesSql = "SELECT COUNT(*) order_count, IFNULL(SUM(total_amount),0) total_sales
+                 FROM orders
+                 WHERE company_id=:company_id AND business_date=:business_date AND status='paid'";
+    $stSales = $pdo->prepare($salesSql);
+    $stSales->execute(['company_id' => $companyId, 'business_date' => $businessDate]);
+    $sales = $stSales->fetch() ?: ['order_count' => 0, 'total_sales' => 0];
+
+    $storeSql = "SELECT COUNT(*) store_count FROM stores WHERE company_id=:company_id AND is_active=1";
+    $stStore = $pdo->prepare($storeSql);
+    $stStore->execute(['company_id' => $companyId]);
+    $stores = $stStore->fetch();
+
+    $lowStockSql = "SELECT COUNT(*) low_stock_count
+                    FROM store_inventory i
+                    JOIN products p ON p.id = i.product_id
+                    WHERE i.company_id=:company_id AND i.qty_on_hand <= i.safety_stock AND p.is_active=1";
+    $stLow = $pdo->prepare($lowStockSql);
+    $stLow->execute(['company_id' => $companyId]);
+    $low = $stLow->fetch();
+
+    $syncSql = "SELECT sync_status, COUNT(*) cnt
+                FROM branch_sync_logs
+                WHERE company_id=:company_id
+                GROUP BY sync_status";
+    $stSync = $pdo->prepare($syncSql);
+    $stSync->execute(['company_id' => $companyId]);
+    $syncSummary = $stSync->fetchAll();
+
+    out(['ok' => true, 'data' => [
+      'business_date' => $businessDate,
+      'order_count' => (int)$sales['order_count'],
+      'total_sales' => (float)$sales['total_sales'],
+      'active_store_count' => (int)($stores['store_count'] ?? 0),
+      'low_stock_count' => (int)($low['low_stock_count'] ?? 0),
+      'sync_summary' => $syncSummary,
+    ]]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

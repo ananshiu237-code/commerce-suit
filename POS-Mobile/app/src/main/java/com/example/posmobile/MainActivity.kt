@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.inventoryApplyEditButton).setOnClickListener { applyInventoryEdit() }
         findViewById<Button>(R.id.reportButton).setOnClickListener { fetchReports() }
         findViewById<Button>(R.id.syncStatusButton).setOnClickListener { fetchSyncStatus() }
+        findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
 
         updateModeUI()
         renderCurrent()
@@ -395,6 +396,44 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：同步監控錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchHqSummary() {
+        setStatus("狀態：查詢總店營運總覽中...")
+        thread {
+            try {
+                val date = toDateInput.text.toString().trim().ifBlank { "2026-02-27" }
+                val url = "$apiBase/dashboard/hq-summary?company_id=1&business_date=$date"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    runOnUiThread { setStatus("狀態：總店總覽查詢失敗") }
+                    return@thread
+                }
+
+                val d = JSONObject(body).getJSONObject("data")
+                val sync = d.getJSONArray("sync_summary")
+                val sb = StringBuilder()
+                sb.append("【總店營運總覽】\n")
+                sb.append("營業日: ${d.getString("business_date")}\n")
+                sb.append("訂單數: ${d.getInt("order_count")}\n")
+                sb.append("營收: ${d.getDouble("total_sales")}\n")
+                sb.append("啟用分店數: ${d.getInt("active_store_count")}\n")
+                sb.append("低庫存筆數: ${d.getInt("low_stock_count")}\n\n")
+                sb.append("【同步狀態】\n")
+                for (i in 0 until sync.length()) {
+                    val r = sync.getJSONObject(i)
+                    sb.append("${r.getString("sync_status")}: ${r.getInt("cnt")}\n")
+                }
+
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    setStatus("狀態：總店營運總覽完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：總店總覽錯誤 ${e.message}") }
             }
         }
     }

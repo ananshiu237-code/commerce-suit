@@ -205,6 +205,13 @@
             android:text="查詢總店同步監控"
             android:layout_marginTop="8dp" />
 
+        <Button
+            android:id="@+id/hqSummaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="查詢總店營運總覽"
+            android:layout_marginTop="8dp" />
+
         <TextView
             android:id="@+id/cartTitle"
             android:layout_width="match_parent"

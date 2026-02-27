@@ -94,6 +94,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.hqSummaryButton).setOnClickListener { fetchHqSummary() }
         findViewById<Button>(R.id.storeRankingButton).setOnClickListener { fetchStoreRanking() }
         findViewById<Button>(R.id.lowStockButton).setOnClickListener { fetchLowStock() }
+        findViewById<Button>(R.id.replenishButton).setOnClickListener { fetchReplenishmentSuggestions() }
 
         updateModeUI()
         renderCurrent()
@@ -505,6 +506,44 @@ class MainActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 runOnUiThread { setStatus("狀態：低庫存錯誤 ${e.message}") }
+            }
+        }
+    }
+
+    private fun fetchReplenishmentSuggestions() {
+        setStatus("狀態：查詢補貨建議中...")
+        thread {
+            try {
+                val storeId = storeIdInput.text.toString().toIntOrNull() ?: 1
+                val url = "$apiBase/reports/replenishment-suggestions?company_id=1&store_id=$storeId&target_multiplier=1.5"
+                val res = client.newCall(Request.Builder().url(url).build()).execute()
+                val body = res.body?.string().orEmpty()
+                if (!res.isSuccessful) {
+                    runOnUiThread { setStatus("狀態：補貨建議查詢失敗") }
+                    return@thread
+                }
+
+                val root = JSONObject(body)
+                val arr = root.getJSONArray("data")
+                val mult = root.getJSONObject("meta").getDouble("target_multiplier")
+                val sb = StringBuilder()
+                sb.append("【補貨建議】店別=$storeId 目標=安全庫存x$mult\n")
+                if (arr.length() == 0) {
+                    sb.append("目前無需補貨商品\n")
+                } else {
+                    for (i in 0 until arr.length()) {
+                        val r = arr.getJSONObject(i)
+                        sb.append("商品ID ${r.getInt("product_id")} ${r.getString("name")}\n")
+                        sb.append("現有:${r.getString("qty_on_hand")} 目標:${r.getString("target_stock")} 建議補:${r.getString("suggested_replenish")}\n\n")
+                    }
+                }
+
+                runOnUiThread {
+                    cartText.text = sb.toString()
+                    setStatus("狀態：補貨建議查詢完成")
+                }
+            } catch (e: Exception) {
+                runOnUiThread { setStatus("狀態：補貨建議錯誤 ${e.message}") }
             }
         }
     }

@@ -313,6 +313,35 @@ try {
     out(['ok' => true, 'data' => $st->fetchAll()]);
   }
 
+  if ($method === 'GET' && $p === '/api/reports/replenishment-suggestions') {
+    $companyId = (int)($_GET['company_id'] ?? 1);
+    $storeId = (int)($_GET['store_id'] ?? 1);
+    $multiplier = (float)($_GET['target_multiplier'] ?? 1.5); // 補到 safety_stock * 倍數
+    if ($multiplier < 1) $multiplier = 1;
+
+    $pdo = db();
+    $sql = "SELECT i.store_id, s.store_name, i.product_id, p.sku, p.name,
+                   i.qty_on_hand, i.safety_stock,
+                   ROUND(i.safety_stock * :multiplier, 3) target_stock,
+                   ROUND((i.safety_stock * :multiplier) - i.qty_on_hand, 3) suggested_replenish
+            FROM store_inventory i
+            JOIN products p ON p.id = i.product_id
+            JOIN stores s ON s.id = i.store_id
+            WHERE i.company_id=:company_id
+              AND i.store_id=:store_id
+              AND p.is_active=1
+              AND i.qty_on_hand < (i.safety_stock * :multiplier2)
+            ORDER BY suggested_replenish DESC, p.id ASC";
+    $st = $pdo->prepare($sql);
+    $st->execute([
+      'company_id' => $companyId,
+      'store_id' => $storeId,
+      'multiplier' => $multiplier,
+      'multiplier2' => $multiplier,
+    ]);
+    out(['ok' => true, 'data' => $st->fetchAll(), 'meta' => ['target_multiplier' => $multiplier]]);
+  }
+
   if ($method === 'POST' && $p === '/api/sync/upload') {
     $b = body();
     $companyId = (int)($b['company_id'] ?? 1);

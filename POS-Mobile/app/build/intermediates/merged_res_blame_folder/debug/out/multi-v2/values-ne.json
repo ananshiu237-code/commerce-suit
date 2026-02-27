@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.posmobile.app-mergeDebugResources-29:/values-ne/values-ne.xml",
+            "outputFile": "com.example.posmobile.app-mergeDebugResources-30:/values-ne/values-ne.xml",
             "map": [
                 {
                     "source": "/home/dell3442/.gradle/caches/8.13/transforms/d97ffc655429813abb1a08c120e0a9ec/transformed/material-1.11.0/res/values-ne/values-ne.xml",

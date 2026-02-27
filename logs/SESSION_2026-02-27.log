@@ -1,3 +1,9 @@
-[2026-02-27] 建置完成：Ubuntu + Nginx + PHP-FPM + MySQL + Android POS-Mobile
-[2026-02-27] API endpoint: http://192.168.0.227/
-[2026-02-27] Android app install target: Samsung hlte (ADB over Wi-Fi)
+[2026-02-27] 完成 Ubuntu + Nginx + PHP-FPM + MySQL + Android 基礎環境
+[2026-02-27] POS-Mobile Android 實機部署成功（Samsung hlte）
+[2026-02-27] 建立 ERP 導向 MySQL 資料表 23 張
+[2026-02-27] 完成 API: /api/products, /api/products/by-qr/{code}, /api/orders
+[2026-02-27] 完成 API: /api/inventory/check
+[2026-02-27] 完成 API: /api/reports/daily-sales, /api/reports/payment-mix
+[2026-02-27] 完成 API: /api/sync/upload (idempotency)
+[2026-02-27] Android 新增：銷售模式、盤點模式、報表區間（今日/昨天/7天/15天/30天）
+[2026-02-27] 使用真實條碼測試通過，訂單/收款/扣庫存/盤點/報表皆可運作

@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-22:12
-INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-22:12
-INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-22:12
-INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-22:12
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-23:12
+INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-23:12
+INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-23:12
+INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:1:1-23:12
 MERGED from [com.google.android.material:material:1.11.0] /home/dell3442/.gradle/caches/8.13/transforms/d97ffc655429813abb1a08c120e0a9ec/transformed/material-1.11.0/AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /home/dell3442/.gradle/caches/8.13/transforms/c1dc837c6b14a7758a66c752cc9c1ee9/transformed/appcompat-resources-1.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /home/dell3442/.gradle/caches/8.13/transforms/48067e8239a7af066a45e32288ecbfc9/transformed/constraintlayout-2.0.1/AndroidManifest.xml:2:1-11:12
@@ -45,6 +45,7 @@ MERGED from [androidx.arch.core:core-runtime:2.2.0] /home/dell3442/.gradle/cache
 MERGED from [androidx.documentfile:documentfile:1.0.0] /home/dell3442/.gradle/caches/8.13/transforms/e9ba8354ad20dda4bc0c079da1363eb3/transformed/documentfile-1.0.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /home/dell3442/.gradle/caches/8.13/transforms/c6b26cf3a7dbc515dfc3a263f29f56e1/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.print:print:1.0.0] /home/dell3442/.gradle/caches/8.13/transforms/3b632502cad11cbbb2786db5c02b4450/transformed/print-1.0.0/AndroidManifest.xml:17:1-22:12
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:17:1-56:12
 	package
 		INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml
 	android:versionName
@@ -57,9 +58,15 @@ uses-permission#android.permission.INTERNET
 ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:3:5-67
 	android:name
 		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:3:22-64
+uses-permission#android.permission.CAMERA
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:4:5-65
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:22:5-65
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:22:5-65
+	android:name
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:4:22-62
 application
-ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:5:5-20:19
-INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:5:5-20:19
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:6:5-21:19
+INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:6:5-21:19
 MERGED from [com.google.android.material:material:1.11.0] /home/dell3442/.gradle/caches/8.13/transforms/d97ffc655429813abb1a08c120e0a9ec/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.11.0] /home/dell3442/.gradle/caches/8.13/transforms/d97ffc655429813abb1a08c120e0a9ec/transformed/material-1.11.0/AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.0.1] /home/dell3442/.gradle/caches/8.13/transforms/48067e8239a7af066a45e32288ecbfc9/transformed/constraintlayout-2.0.1/AndroidManifest.xml:9:5-20
@@ -76,36 +83,38 @@ MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/dell3442/.g
 MERGED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/dell3442/.gradle/caches/8.13/transforms/60af0b0900c5ac41945310c1017e8f7a/transformed/profileinstaller-1.3.0/AndroidManifest.xml:23:5-53:19
 MERGED from [androidx.startup:startup-runtime:1.1.1] /home/dell3442/.gradle/caches/8.13/transforms/7b859946a2a7621b1fcbdfecd6ca63ac/transformed/startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
 MERGED from [androidx.startup:startup-runtime:1.1.1] /home/dell3442/.gradle/caches/8.13/transforms/7b859946a2a7621b1fcbdfecd6ca63ac/transformed/startup-runtime-1.1.1/AndroidManifest.xml:25:5-31:19
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:46:5-54:19
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:46:5-54:19
 	android:extractNativeLibs
 		INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /home/dell3442/.gradle/caches/8.13/transforms/b633ac57b149f7061d43ac7049406620/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:supportsRtl
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:8:9-35
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:9:9-35
 	android:label
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:7:9-35
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:8:9-35
 	android:allowBackup
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:6:9-35
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:7:9-35
 	android:theme
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:9:9-47
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:10:9-47
 	android:usesCleartextTraffic
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:10:9-44
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:11:9-44
 activity#com.example.posmobile.MainActivity
-ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:11:9-19:20
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:12:9-20:20
 	android:exported
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:13:13-36
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:14:13-36
 	android:name
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:12:13-41
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:13:13-41
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:14:13-18:29
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:15:13-19:29
 action#android.intent.action.MAIN
-ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:15:17-69
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:16:17-69
 	android:name
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:15:25-66
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:16:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:17:17-77
+ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:18:17-77
 	android:name
-		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:17:27-74
+		ADDED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml:18:27-74
 uses-sdk
 INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml
@@ -192,6 +201,8 @@ MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /home/d
 MERGED from [androidx.localbroadcastmanager:localbroadcastmanager:1.0.0] /home/dell3442/.gradle/caches/8.13/transforms/c6b26cf3a7dbc515dfc3a263f29f56e1/transformed/localbroadcastmanager-1.0.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.print:print:1.0.0] /home/dell3442/.gradle/caches/8.13/transforms/3b632502cad11cbbb2786db5c02b4450/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
 MERGED from [androidx.print:print:1.0.0] /home/dell3442/.gradle/caches/8.13/transforms/3b632502cad11cbbb2786db5c02b4450/transformed/print-1.0.0/AndroidManifest.xml:20:5-44
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:20:5-44
+MERGED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:20:5-44
 	android:targetSdkVersion
 		INJECTED from /home/dell3442/.openclaw/workspace/POS/POS-Mobile/app/src/main/AndroidManifest.xml
 	android:minSdkVersion
@@ -286,3 +297,53 @@ action#androidx.profileinstaller.action.BENCHMARK_OPERATION
 ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/dell3442/.gradle/caches/8.13/transforms/60af0b0900c5ac41945310c1017e8f7a/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:17-95
 	android:name
 		ADDED from [androidx.profileinstaller:profileinstaller:1.3.0] /home/dell3442/.gradle/caches/8.13/transforms/60af0b0900c5ac41945310c1017e8f7a/transformed/profileinstaller-1.3.0/AndroidManifest.xml:50:25-92
+uses-feature#android.hardware.camera
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:25:5-27:36
+	android:required
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:27:9-33
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:26:9-47
+uses-feature#android.hardware.camera.front
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:28:5-30:36
+	android:required
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:30:9-33
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:29:9-53
+uses-feature#android.hardware.camera.autofocus
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:33:5-35:36
+	android:required
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:35:9-33
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:34:9-57
+uses-feature#android.hardware.camera.flash
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:36:5-38:36
+	android:required
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:38:9-33
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:37:9-53
+uses-feature#android.hardware.screen.landscape
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:39:5-41:36
+	android:required
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:41:9-33
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:40:9-57
+uses-feature#android.hardware.wifi
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:42:5-44:36
+	android:required
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:44:9-33
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:43:9-45
+activity#com.journeyapps.barcodescanner.CaptureActivity
+ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:47:9-53:63
+	android:screenOrientation
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:50:13-56
+	android:clearTaskOnLaunch
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:49:13-45
+	android:stateNotNeeded
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:51:13-42
+	android:windowSoftInputMode
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:53:13-60
+	android:theme
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:52:13-54
+	android:name
+		ADDED from [com.journeyapps:zxing-android-embedded:4.3.0] /home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/AndroidManifest.xml:48:13-74

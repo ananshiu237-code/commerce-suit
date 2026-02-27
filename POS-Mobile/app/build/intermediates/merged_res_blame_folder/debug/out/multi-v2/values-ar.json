@@ -1,8 +1,25 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.posmobile.app-mergeDebugResources-29:/values-ar/values-ar.xml",
+            "outputFile": "com.example.posmobile.app-mergeDebugResources-30:/values-ar/values-ar.xml",
             "map": [
+                {
+                    "source": "/home/dell3442/.gradle/caches/8.13/transforms/768cbe0bdf3843f218d31d7f1735a9d4/transformed/zxing-android-embedded-4.3.0/res/values-ar/values-ar.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,117,167,300",
+                        "endColumns": "61,49,132,109",
+                        "endOffsets": "112,162,295,405"
+                    },
+                    "to": {
+                        "startLines": "114,115,116,117",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "9524,9586,9636,9769",
+                        "endColumns": "61,49,132,109",
+                        "endOffsets": "9581,9631,9764,9874"
+                    }
+                },
                 {
                     "source": "/home/dell3442/.gradle/caches/8.13/transforms/1eb56fa480bcf07f5eba460cdf931a6f/transformed/appcompat-1.6.1/res/values-ar/values-ar.xml",
                     "from": {

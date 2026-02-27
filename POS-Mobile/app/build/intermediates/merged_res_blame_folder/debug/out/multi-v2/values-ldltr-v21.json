@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.posmobile.app-mergeDebugResources-29:/values-ldltr-v21/values-ldltr-v21.xml",
+            "outputFile": "com.example.posmobile.app-mergeDebugResources-30:/values-ldltr-v21/values-ldltr-v21.xml",
             "map": [
                 {
                     "source": "/home/dell3442/.gradle/caches/8.13/transforms/1eb56fa480bcf07f5eba460cdf931a6f/transformed/appcompat-1.6.1/res/values-ldltr-v21/values-ldltr-v21.xml",
